@@ -1,0 +1,990 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>لوحة التقارير</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;500;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    /* ===== Theme (dashboard look) ===== */
+    :root{
+      --bg:#0b1020;
+      --bg-tile: radial-gradient(1200px 800px at 100% -20%, rgba(60,80,255,.08), transparent 50%),
+                  radial-gradient(900px 600px at -10% 120%, rgba(255,215,85,.08), transparent 50%),
+                  linear-gradient(180deg, #0b1020 0%, #0a0e1a 100%);
+      --panel:#121a2b;
+      --panel-2:#0f1626;
+      --panel-glass: linear-gradient(180deg, rgba(18,26,43,.9), rgba(15,22,38,.9));
+      --border:#1e2b48;
+      --shadow: 0 12px 28px rgba(0,0,0,.45);
+      --primary-1:#4a7bff;
+      --primary-2:#2c56db;
+      --chip:#101a34;
+      --text:#e7edff;
+      --muted:#9fb3db;
+      --field:#0e172a;
+      --field-border:#1b2b4d;
+    }
+
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+    body{
+      margin:0;
+      font-family:"Cairo", Tahoma, Arial, sans-serif;
+      color:var(--text);
+      background: var(--bg-tile);
+    }
+
+    /* Layout */
+    .layout{ display:grid; grid-template-columns: 300px 1fr; gap:20px; padding:22px; }
+    @media (max-width: 1100px){ .layout{ grid-template-columns: 1fr; } }
+
+    /* Sidebar */
+    .sidebar{
+      position:sticky; top:22px;
+      background: var(--panel-glass);
+      border:1px solid var(--border);
+      border-radius:18px;
+      box-shadow: var(--shadow);
+      padding:16px;
+      height: fit-content;
+      backdrop-filter: blur(6px);
+    }
+    .sidebar__profile{
+      display:flex; align-items:center; gap:12px;
+      padding-bottom:14px; border-bottom:1px solid var(--border);
+    }
+    .avatar{
+      width:48px; height:48px; border-radius:14px;
+      display:grid; place-items:center;
+      background:#1a2748; color:#cfe0ff; font-weight:800; font-size:18px;
+      box-shadow: inset 0 0 0 1px #26407a;
+    }
+    .user{ font-weight:800; letter-spacing:.2px; }
+    .role{ font-size:12px; color:var(--muted); margin-top:2px; }
+
+    .sidebar__nav{ display:grid; gap:10px; margin-top:16px; }
+    .nav-item{
+      appearance:none; border:none; cursor:pointer;
+      border-radius:12px; padding:12px 14px; text-align:right;
+      background: var(--chip);
+      color:#dbe6ff; font-weight:700;
+      border:1px solid var(--border);
+      transition: .12s transform, .12s background, .12s border-color;
+    }
+    .nav-item:hover{
+      background:#0f1a33; transform:translateY(-1px); border-color:#2a4177;
+    }
+    .sidebar__footer{ margin-top:16px; color:var(--muted); text-align:center; }
+
+    /* Main */
+    .main{ display:grid; gap:18px; }
+
+    /* Cards / hero */
+    .card{
+      background: var(--panel-glass);
+      border:1px solid var(--border);
+      border-radius:18px;
+      padding:18px;
+      box-shadow: var(--shadow);
+    }
+    .hero{ display:flex; gap:26px; align-items:flex-start; }
+    .hero__left{ flex:1; }
+    h1{ margin:0 0 8px; font-size:28px; font-weight:900; letter-spacing:.2px; }
+    h2{ margin:0 0 14px; font-size:22px; font-weight:900; letter-spacing:.2px; }
+    .muted{ color: var(--muted); margin:0 0 12px; }
+
+    /* Chips */
+    .cards-row{ display:flex; gap:10px; flex-wrap:wrap; }
+    .chip{
+      background: var(--chip);
+      border:1px solid var(--border);
+      color:#cfe0ff;
+      border-radius:999px; padding:8px 14px; cursor:pointer; font-weight:700;
+      transition:.12s background, .12s transform, .12s border-color;
+    }
+    .chip:hover{ background:#0f1e3b; transform:translateY(-1px); border-color:#2b4278; }
+
+    /* Form */
+    .field{ display:grid; gap:6px; }
+    label{ font-weight:800; color:#d7e5ff; }
+    .input, select, textarea{
+      width:100%; border:1px solid var(--field-border);
+      background: var(--field); color:#e7efff;
+      border-radius:12px; padding:11px 12px; font-size:15px;
+    }
+    .readonly{ opacity:.95; }
+    .check{ display:flex; align-items:center; gap:8px; }
+    .grid-2{ display:grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap:12px; }
+    @media (max-width: 850px){ .grid-2{ grid-template-columns:1fr; } }
+    .time-group{ display:flex; gap:8px; }
+    .time-group .input, .time-group select{ flex:1; }
+
+    /* Buttons */
+    .btn{
+      background:linear-gradient(180deg, var(--primary-1) 0%, var(--primary-2) 100%);
+      border:1px solid #2848c4; color:white; font-weight:900; letter-spacing:.2px;
+      padding:12px 18px; border-radius:12px; cursor:pointer;
+      transition:.15s transform, .15s filter, .15s box-shadow;
+      box-shadow: 0 10px 20px rgba(66,105,255,.18);
+    }
+    .btn:hover{ transform:translateY(-1px); filter:brightness(1.05); }
+    .btn:active{ transform:translateY(0); }
+    .btn-primary{ background:linear-gradient(180deg, #5d8bff 0%, #375fe4 100%); border-color:#345be0; }
+
+    .actions{ display:flex; gap:10px; flex-wrap:wrap; margin-top:10px; }
+
+    /* Output */
+    .output{
+      display:none; margin-top:12px; padding:16px; border-radius:14px; white-space:pre-wrap;
+      background:#0b1326; border:1px solid var(--field-border); color:#eef2ff; direction:ltr; text-align:left;
+      box-shadow: inset 0 0 0 1px rgba(48,72,120,.25);
+    }
+
+    /* Custom dropdown */
+    .custom-dropdown{ position:relative; user-select:none; }
+    .cd-selected{
+      display:flex; align-items:center; justify-content:space-between; gap:8px;
+      padding:11px 12px; border-radius:12px; border:1px solid var(--field-border);
+      background:#0f172a; color:#e7efff; cursor:pointer; font-weight:700;
+    }
+    .cd-panel{
+      position:absolute; left:0; right:0; top:calc(100% + 6px);
+      background:#0f172a; border:1px solid var(--field-border); border-radius:12px;
+      box-shadow: var(--shadow); max-height:300px; overflow:auto; padding:6px; display:none; z-index:50;
+    }
+    .cd-option{ padding:10px; border-radius:10px; cursor:pointer; }
+    .cd-option:hover{ background:#0f213f; }
+    .cd-option.selected{ background:#132a55; }
+
+    /* Panes (tabs) */
+    .pane{ display:none; }
+    .pane.active{ display:block; }
+  </style>
+</head>
+<body>
+ 
+  <div class="layout">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar__profile">
+        <div class="avatar">G</div>
+        <div>
+          <div class="user">Guest</div>
+          <div class="role">نظام التقارير</div>
+        </div>
+      </div>
+
+      <nav class="sidebar__nav">
+        <button class="nav-item" data-target="vacBox">الإجازات و الانتدابات</button>
+        <button class="nav-item" data-target="resignBox">الاستقالة</button>
+        <button class="nav-item" data-target="violBox">المخالفات</button>
+        <button class="nav-item" data-target="absBox">فني لم يحضر</button>
+        <button class="nav-item" data-target="extBox">إجازة خارجية</button>
+      </nav>
+
+      <div class="sidebar__footer"><small>© الميكانيك</small></div>
+    </aside>
+
+    <!-- Main -->
+    <main class="main">
+
+      <!-- ================= VACATIONS (internal + secondment) ================= -->
+      <section id="vacBox" class="card pane active">
+        <h2>🧳 الإجازات و الانتدابات</h2>
+
+        <div class="grid-2">
+          <div>
+            <label>الإجازة لمن؟</label>
+            <select id="vac_vacType" class="input" onchange="vac_toggleFields()">
+              <option value="فني">فني</option>
+              <option value="مشرف">مشرف</option>
+              <option value="الانتدابات">الانتدابات</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- إجازة داخلية -->
+        <div id="vac_internalFields" class="grid-2">
+          <div>
+            <label>الكوبي ايدي</label>
+            <input type="number" id="vac_copyId" class="input" placeholder="أدخل الكوبي ايدي">
+          </div>
+          <div>
+            <label>المــــدة (بالساعات)</label>
+            <input type="number" id="vac_duration" class="input" placeholder="عدد الساعات">
+          </div>
+          <div>
+            <label>الرصيد المتبقي (بالساعات)</label>
+            <input type="number" id="vac_balance" class="input" placeholder="عدد الساعات">
+          </div>
+          <div>
+            <label>وقت بدء الإجازة</label>
+            <div class="time-group">
+              <input type="number" id="vac_startHour" class="input" placeholder="الساعة (1-12)">
+              <input type="number" id="vac_startMinute" class="input" placeholder="الدقيقة (0-59)">
+              <select id="vac_startPeriod" class="input">
+                <option value="ص">صباحًا</option>
+                <option value="م">مساءً</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- الانتدابات -->
+        <div id="vac_secondmentFields" class="grid-2" style="display:none">
+          <div>
+            <label>الكوبي ايدي</label>
+            <input type="number" id="sec_copyId" class="input" placeholder="أدخل الكوبي ايدي">
+          </div>
+          <div>
+            <label>اسم المنتدب و كوده</label>
+            <input type="text" id="sec_nameCode" class="input" placeholder="اكتب الاسم والكود">
+          </div>
+          <div>
+            <label>القطاع المنتدب له</label>
+            <select id="sec_sector" class="input">
+              <option value="">اختر القطاع</option>
+              <option>آمن الطرق</option>
+              <option>آمن المنشآت</option>
+              <option>حرس الحدود</option>
+              <option>الهلال الأحمر</option>
+              <option>آمن عام</option>
+              <option>قوات الطؤارئ</option>
+            </select>
+          </div>
+          <div>
+            <label>المدة (بالأيام)</label>
+            <input type="number" id="sec_days" class="input" placeholder="عدد الأيام">
+          </div>
+        </div>
+
+        <div class="actions">
+          <button class="btn" onclick="vac_generateVacation()">إنشاء الإجازة</button>
+          <button class="btn" onclick="vac_copyResult()">📋 نسخ النتيجة</button>
+        </div>
+        <pre id="vac_output" class="output"></pre>
+      </section>
+
+      <!-- ================= RESIGNATION ================= -->
+      <section id="resignBox" class="card pane">
+        <h2>📞 نموذج الاستقالة</h2>
+
+        <div class="grid-2">
+          <div>
+            <label>استقالة لمن ؟</label>
+            <select id="res_type" class="input" onchange="res_toggleLevel()">
+              <option value="مستوى متدرب">مستوى متدرب</option>
+              <option value="مستوى 1">مستوى 1</option>
+              <option value="اعلى">مستوى 2 فأعلى</option>
+            </select>
+          </div>
+
+          <div>
+            <label>الكوبي ايدي</label>
+            <input type="number" id="res_copyId" class="input" placeholder="أدخل الكوبي ايدي">
+          </div>
+
+          <div id="res_levelBox" style="display:none">
+            <label>رقم المستوى (2 فأعلى)</label>
+            <input type="number" id="res_levelNumber" class="input" min="2" placeholder="أدخل رقم المستوى">
+          </div>
+
+          <div>
+            <label>اسم وكود الفني كتابتا</label>
+            <input type="text" id="res_nameCode" class="input" placeholder="اكتب الاسم والكود كتابتاً">
+          </div>
+
+          <div>
+            <label>كوبي ايدي المشرف</label>
+            <input type="number" id="res_supervisorId" class="input" placeholder="أدخل كوبي ايدي المشرف">
+          </div>
+        </div>
+
+        <div class="actions">
+          <button class="btn" onclick="res_generate()">إنشاء الرسالة</button>
+          <button class="btn" onclick="res_copy()">📋 نسخ النتيجة</button>
+        </div>
+        <pre id="res_output" class="output"></pre>
+      </section>
+
+      <!-- ================= VIOLATIONS ================= -->
+      <section id="violBox" class="card pane">
+        <h2>📋 المخالفات</h2>
+
+        <div class="grid-2">
+          <div>
+            <label>الكوبي ايدي</label>
+            <input type="number" id="vio_copyId" class="input" placeholder="أدخل الكوبي ايدي">
+          </div>
+
+          <div>
+            <label>رقم الإنذار الوظيفي</label>
+            <select id="vio_warningLevel" class="input" onchange="vio_toggleByLevel()">
+              <option value="شفهي">شفهي</option>
+              <option value="اول">اول</option>
+              <option value="ثاني">ثاني</option>
+              <option value="نهائي">نهائي</option>
+            </select>
+          </div>
+
+          <div id="vio_fineRow">
+            <label>قيمة الغرامة</label>
+            <input type="number" id="vio_fineAmount" class="input" placeholder="أدخل قيمة الغرامة">
+          </div>
+
+          <div id="vio_supervisorRow">
+            <label>كوبي ايدي المشرف</label>
+            <input type="number" id="vio_supervisorId" class="input" placeholder="أدخل كوبي ايدي المشرف">
+          </div>
+        </div>
+
+        <label>المخالفات</label>
+        <div class="custom-dropdown" id="vio_dropdown">
+          <div class="cd-selected" onclick="toggleDropdown('vio')">
+            <span class="placeholder">اختر المخالفة</span>
+            <span>▾</span>
+          </div>
+          <div class="cd-panel" id="vio_panel" role="listbox" aria-hidden="true">
+            <div class="cd-option">التهرب من المحاسبة</div>
+            <div class="cd-option">استخدام خواص الميكانيك للمصلحة الشخصية</div>
+            <div class="cd-option">عدم احترام  الميكانيكي او القيادة او المشرف</div>
+            <div class="cd-option">استقاله برتبة مستوى متدرب او مستوى 1</div>
+            <div class="cd-option">اثاره الجدل بالشات العام او رسائل الميكانيك</div>
+            <div class="cd-option">أي تلاعب بالفواتير</div>
+            <div class="cd-option">استخراج مركبات او استئجار دباب بهدف الحجز</div>
+            <div class="cd-option">الاجرام بوظيف الميكانيك</div>
+            <div class="cd-option">تواجد في مدن اخرا</div>
+            <div class="cd-option">الخروج من غرفة العمليات دون تسليم لجميع المهام الميدانية ( العمليات + النائب + الاتصالات)</div>
+            <div class="cd-option">دخول موجه الرقابة والتفتيش</div>
+            <div class="cd-option">السجن الرقابي</div>
+            <div class="cd-option">عدم احترام افراد القطاعات و المواطنين - التهرب من تنبيهات المشرف</div>
+            <div class="cd-option">التصديم المتعمد لغرض تعديل المركبه</div>
+            <div class="cd-option">عدم الجدية بالميدان</div>
+            <div class="cd-option">تخطي مراجع</div>
+            <div class="cd-option">حيازه سلاح او ممنوعات</div>
+            <div class="cd-option">مخالفات التعديل و التزويد</div>
+            <div class="cd-option">تعديل و تزويد المركبات التي تملك اكسسوارات أو أكسترا اسلحة</div>
+            <div class="cd-option">فحص او تعديل و تزويد المركبات في خارج اوقات الافتتاح</div>
+            <div class="cd-option">التلاعب في مسارات التعديل و التزويد</div>
+            <div class="cd-option">مخالفة قوانين التعديل و التزويد (تعديل مركبة بدون توجيه)</div>
+            <div class="cd-option">مخالفة قوانين التعديل و التزويد</div>
+            <div class="cd-option">مخالفة قوانين التعديل و التزويد (عدم مراجعة التقرير بعد ارساله )</div>
+            <div class="cd-option">تعديل و تزويد المركبة الخاصه بـ المهندس بنفسه</div>
+            <div class="cd-option">الصفع او الضرب</div>
+            <div class="cd-option">الانتداب وقت التوظيف</div>
+            <div class="cd-option">دخول روم الكادر النسائي</div>
+            <div class="cd-option">التدخل في الشؤون الأداريه</div>
+            <div class="cd-option">تعديل الزي الرسمي للقطاع او اضافه الوشوم</div>
+            <div class="cd-option">الاعتراض على الترقية او مخالفة بدون التحقق من اكمال الشروط</div>
+            <div class="cd-option">فتح تكت اجازة غير مطابقة للشروط</div>
+            <div class="cd-option">التاخر في العودة من الاجازة الداخلية</div>
+            <div class="cd-option">تغيير الوظيفة قبل ابتداء الاجازة الداخلية</div>
+            <div class="cd-option">التهرب من استلام مهام العمليات او نائب العمليات او مركز الاتصالات</div>
+            <div class="cd-option">انزال السطحة اثناء القيادة</div>
+            <div class="cd-option">اصلاح المركبات من خلال قائمة F6 ( بإستثناء المركبات الحكومية )</div>
+            <div class="cd-option">ترك البوابات الكراج مفتوحة</div>
+            <div class="cd-option">تخطي مراجع في الراديو</div>
+            <div class="cd-option">القفز من الدرج داخل SRT</div>
+            <div class="cd-option">عدم الاستجابة للاستدعاء من قبل المشرفين خلال 24 ساعة</div>
+            <div class="cd-option">عدم اخذ كود 7 و التأفيك</div>
+            <div class="cd-option">التسطيح داخل حجز لوس دون توجيه</div>
+            <div class="cd-option">التوجه للأماكن المحضوره دون توجيه</div>
+            <div class="cd-option">القيادة المتهورة</div>
+            <div class="cd-option">عدم مطابقة الاسم + الاسم في فايف ام</div>
+            <div class="cd-option">التسطيح داخل نداء الاستغاثة</div>
+            <div class="cd-option">اهمال مركبة</div>
+            <div class="cd-option">عدم الاستجابة على الراديو - عدم تطبيق توجيهات العمليات او النائب</div>
+            <div class="cd-option">عدم الالتزام في قائمة اسعار الكراج</div>
+            <div class="cd-option">اخذ كود 7 و عدم الرجوع بعد الوقت المحدد</div>
+            <div class="cd-option">عدم تسجيل الدخول في الوظيفة</div>
+            <div class="cd-option">البقاء في روم الكراج</div>
+            <div class="cd-option">عدم دخول الموجة</div>
+          </div>
+        </div>
+        <input type="hidden" id="vio_selected" value="">
+        <div class="actions">
+          <button class="btn" onclick="vio_generate()">إنشاء الإنذار</button>
+          <button class="btn" onclick="vio_copy()">📋 نسخ النتيجة</button>
+        </div>
+        <pre id="vio_output" class="output"></pre>
+      </section>
+
+      <!-- ================= ABSENT ================= -->
+      <section id="absBox" class="card pane">
+        <h2>🧲 نموذج إستدعاء للفني الذي لم يحضر</h2>
+
+        <div class="grid-2">
+          <div>
+            <label>الكوبي ايدي</label>
+            <input type="number" id="abs_copyId" class="input" placeholder="أدخل الكوبي ايدي">
+          </div>
+          <div>
+            <label>قيمة المخالفة</label>
+            <input type="number" id="abs_penalty" class="input" placeholder="أدخل قيمة المخالفة">
+          </div>
+          <div>
+            <label>الإنذار المستحق؟</label>
+            <select id="abs_warning" class="input">
+              <option value="">اختر الإنذار</option>
+              <option>شفهي</option>
+              <option>اول</option>
+              <option>ثاني</option>
+              <option>نهائي</option>
+            </select>
+          </div>
+          <div>
+            <label>لم تتم مخالفته بسبب</label>
+            <input type="text" id="abs_notPunished" class="input" placeholder="أدخل السبب">
+          </div>
+        </div>
+
+        <label>سبب الاستدعاء</label>
+        <div class="custom-dropdown" id="abs_dropdown">
+          <div class="cd-selected" onclick="toggleDropdown('abs')">
+            <span class="placeholder">اختر السبب</span>
+            <span>▾</span>
+          </div>
+          <div class="cd-panel" id="abs_panel" role="listbox" aria-hidden="true">
+            <!-- نفس القائمة كما في المخالفات (يمكنك تقصيرها إذا رغبت) -->
+            <div class="cd-option">التهرب من المحاسبة</div>
+            <div class="cd-option">استخدام خواص الميكانيك للمصلحة الشخصية</div>
+            <div class="cd-option">عدم احترام  الميكانيكي او القيادة او المشرف</div>
+            <div class="cd-option">استقاله برتبة مستوى متدرب او مستوى 1</div>
+            <div class="cd-option">اثاره الجدل بالشات العام او رسائل الميكانيك</div>
+            <div class="cd-option">أي تلاعب بالفواتير</div>
+            <div class="cd-option">استخراج مركبات او استئجار دباب بهدف الحجز</div>
+            <div class="cd-option">الاجرام بوظيف الميكانيك</div>
+            <div class="cd-option">تواجد في مدن اخرا</div>
+            <div class="cd-option">الخروج من غرفة العمليات دون تسليم لجميع المهام الميدانية ( العمليات + النائب + الاتصالات)</div>
+            <div class="cd-option">دخول موجه الرقابة والتفتيش</div>
+            <div class="cd-option">السجن الرقابي</div>
+            <div class="cd-option">عدم احترام افراد القطاعات و المواطنين - التهرب من تنبيهات المشرف</div>
+            <div class="cd-option">التصديم المتعمد لغرض تعديل المركبه</div>
+            <div class="cd-option">عدم الجدية بالميدان</div>
+            <div class="cd-option">تخطي مراجع</div>
+            <div class="cd-option">حيازه سلاح او ممنوعات</div>
+            <div class="cd-option">مخالفات التعديل و التزويد</div>
+            <div class="cd-option">تعديل و تزويد المركبات التي تملك اكسسوارات أو أكسترا اسلحة</div>
+            <div class="cd-option">فحص او تعديل و تزويد المركبات في خارج اوقات الافتتاح</div>
+            <div class="cd-option">التلاعب في مسارات التعديل و التزويد</div>
+            <div class="cd-option">مخالفة قوانين التعديل و التزويد (تعديل مركبة بدون توجيه)</div>
+            <div class="cd-option">مخالفة قوانين التعديل و التزويد</div>
+            <div class="cd-option">مخالفة قوانين التعديل و التزويد (عدم مراجعة التقرير بعد ارساله )</div>
+            <div class="cd-option">تعديل و تزويد المركبة الخاصه بـ المهندس بنفسه</div>
+            <div class="cd-option">الصفع او الضرب</div>
+            <div class="cd-option">الانتداب وقت التوظيف</div>
+            <div class="cd-option">دخول روم الكادر النسائي</div>
+            <div class="cd-option">التدخل في الشؤون الأداريه</div>
+            <div class="cd-option">تعديل الزي الرسمي للقطاع او اضافه الوشوم</div>
+            <div class="cd-option">الاعتراض على الترقية او مخالفة بدون التحقق من اكمال الشروط</div>
+            <div class="cd-option">فتح تكت اجازة غير مطابقة للشروط</div>
+            <div class="cd-option">التاخر في العودة من الاجازة الداخلية</div>
+            <div class="cd-option">تغيير الوظيفة قبل ابتداء الاجازة الداخلية</div>
+            <div class="cd-option">التهرب من استلام مهام العمليات او نائب العمليات او مركز الاتصالات</div>
+            <div class="cd-option">انزال السطحة اثناء القيادة</div>
+            <div class="cd-option">اصلاح المركبات من خلال قائمة F6 ( بإستثناء المركبات الحكومية )</div>
+            <div class="cd-option">ترك البوابات الكراج مفتوحة</div>
+            <div class="cd-option">تخطي مراجع في الراديو</div>
+            <div class="cd-option">القفز من الدرج داخل SRT</div>
+            <div class="cd-option">عدم الاستجابة للاستدعاء من قبل المشرفين خلال 24 ساعة</div>
+            <div class="cd-option">عدم اخذ كود 7 و التأفيك</div>
+            <div class="cd-option">التسطيح داخل حجز لوس دون توجيه</div>
+            <div class="cd-option">التوجه للأماكن المحضوره دون توجيه</div>
+            <div class="cd-option">القيادة المتهورة</div>
+            <div class="cd-option">عدم مطابقة الاسم + الاسم في فايف ام</div>
+            <div class="cd-option">التسطيح داخل نداء الاستغاثة</div>
+            <div class="cd-option">اهمال مركبة</div>
+            <div class="cd-option">عدم الاستجابة على الراديو - عدم تطبيق توجيهات العمليات او النائب</div>
+            <div class="cd-option">عدم الالتزام في قائمة اسعار الكراج</div>
+            <div class="cd-option">اخذ كود 7 و عدم الرجوع بعد الوقت المحدد</div>
+            <div class="cd-option">عدم تسجيل الدخول في الوظيفة</div>
+            <div class="cd-option">البقاء في روم الكراج</div>
+            <div class="cd-option">عدم دخول الموجة</div>
+          </div>
+        </div>
+        <input type="hidden" id="abs_selected" value="">
+
+        <div class="actions">
+          <button class="btn" onclick="abs_generate()">إنشاء الرسالة</button>
+          <button class="btn" onclick="abs_copy()">📋 نسخ</button>
+        </div>
+        <pre id="abs_output" class="output"></pre>
+      </section>
+
+      <!-- ================= EXTERNAL VACATION ================= -->
+      <section id="extBox" class="card pane">
+        <h2>✈️ إجازة خارجية</h2>
+
+        <div class="grid-2">
+          <div>
+            <label>الاجازة لمن؟</label>
+            <select id="ext_personType" class="input">
+              <option value="فني">فني</option>
+              <option value="مشرف">مشرف</option>
+            </select>
+          </div>
+
+          <div>
+            <label>الكوبي ايدي</label>
+            <input type="number" id="ext_copyId" class="input" placeholder="أدخل الكوبي ايدي">
+          </div>
+
+          <div>
+            <label>مدة الاجاز بالايام</label>
+            <input type="number" id="ext_days" class="input" placeholder="عدد الأيام">
+          </div>
+        </div>
+
+        <div class="actions">
+          <button class="btn" onclick="ext_generate()">إنشاء الإجازة الخارجية</button>
+          <button class="btn" onclick="ext_copy()">📋 نسخ</button>
+        </div>
+        <pre id="ext_output" class="output"></pre>
+      </section>
+
+    </main>
+  </div>
+
+  <script>
+    // ---------- Router (sidebar + chips) ----------
+    document.querySelectorAll('[data-target]').forEach(btn => {
+      btn.addEventListener('click', () => show(btn.getAttribute('data-target')));
+    });
+    function show(id){
+      document.querySelectorAll('.pane').forEach(p => p.classList.remove('active'));
+      const el = document.getElementById(id);
+      if (el) el.classList.add('active');
+      closeAllDropdowns();
+    }
+    show('vacBox');
+
+    // ---------- Dropdowns ----------
+    function toggleDropdown(name){
+      const panel = document.getElementById(name + '_panel');
+      const isOpen = panel.style.display === 'block';
+      closeAllDropdowns();
+      if(!isOpen){
+        panel.style.display = 'block';
+        panel.setAttribute('aria-hidden','false');
+      }
+    }
+    function closeAllDropdowns(){
+      document.querySelectorAll('.cd-panel').forEach(p=>{
+        p.style.display='none';
+        p.setAttribute('aria-hidden','true');
+      });
+    }
+    document.addEventListener('click', function(e){
+      // Violations picker
+      if(e.target.closest('#vio_panel') && e.target.classList.contains('cd-option')){
+        const val = e.target.innerText.trim();
+        document.getElementById('vio_selected').value = val;
+        const sel = document.querySelector('#vio_dropdown .cd-selected .placeholder');
+        if(sel) sel.innerText = val;
+        document.querySelectorAll('#vio_panel .cd-option').forEach(o=>o.classList.remove('selected'));
+        e.target.classList.add('selected');
+        closeAllDropdowns();
+        e.stopPropagation();
+        return;
+      }
+      // Absent picker
+      if(e.target.closest('#abs_panel') && e.target.classList.contains('cd-option')){
+        const val = e.target.innerText.trim();
+        document.getElementById('abs_selected').value = val;
+        const sel = document.querySelector('#abs_dropdown .cd-selected .placeholder');
+        if(sel) sel.innerText = val;
+        document.querySelectorAll('#abs_panel .cd-option').forEach(o=>o.classList.remove('selected'));
+        e.target.classList.add('selected');
+        closeAllDropdowns();
+        e.stopPropagation();
+        return;
+      }
+      if(!e.target.closest('.custom-dropdown')) closeAllDropdowns();
+    });
+    document.addEventListener('keydown', e => { if(e.key === 'Escape') closeAllDropdowns(); });
+
+    // ---------- Vacation UI toggle ----------
+    function vac_toggleFields(){
+      const type = document.getElementById('vac_vacType').value;
+      document.getElementById('vac_internalFields').style.display = (type === 'الانتدابات') ? 'none' : 'grid';
+      document.getElementById('vac_secondmentFields').style.display = (type === 'الانتدابات') ? 'grid' : 'none';
+    }
+
+    // ---------- Violations UI toggle ----------
+    function vio_toggleByLevel(){
+      const level = document.getElementById('vio_warningLevel').value;
+      const fineRow = document.getElementById('vio_fineRow');
+      fineRow.style.display = (level === 'شفهي') ? 'none' : 'block';
+    }
+    vio_toggleByLevel();
+
+    // ---------- Utility: copy helper ----------
+    function copyToClipboard(text){
+      if(!text || !text.trim()){
+        alert("⚠️ لا يوجد نتيجة لنسخها"); return;
+      }
+      if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(text)
+          .then(()=>alert("✅ تم النسخ"))
+          .catch(()=>fallbackCopy(text));
+      } else {
+        fallbackCopy(text);
+      }
+      function fallbackCopy(t){
+        const ta = document.createElement('textarea');
+        ta.value = t; ta.setAttribute('readonly','');
+        ta.style.position='fixed'; ta.style.top='-9999px';
+        document.body.appendChild(ta);
+        ta.select();
+        try{ document.execCommand('copy'); alert("✅ تم النسخ"); }
+        catch(e){ alert("❌ انسخ يدويًا."); }
+        finally{ document.body.removeChild(ta); }
+      }
+    }
+    function setOut(id, txt){ const el=document.getElementById(id); el.innerText=txt; el.style.display='block'; }
+    function vac_copyResult(){ copyToClipboard(document.getElementById('vac_output')?.innerText || ""); }
+    function res_copy(){ copyToClipboard(document.getElementById('res_output')?.innerText || ""); }
+    function vio_copy(){ copyToClipboard(document.getElementById('vio_output')?.innerText || ""); }
+    function abs_copy(){ copyToClipboard(document.getElementById('abs_output')?.innerText || ""); }
+    function ext_copy(){ copyToClipboard(document.getElementById('ext_output')?.innerText || ""); }
+
+    // ---------- Vacation (internal + secondment) ----------
+    function vac_generateVacation(){
+      const type = document.getElementById('vac_vacType').value;
+
+      // الانتدابات
+      if(type === 'الانتدابات'){
+        const copyId = (document.getElementById('sec_copyId').value || '').trim();
+        const nameCode = (document.getElementById('sec_nameCode').value || '').trim();
+        const sector = document.getElementById('sec_sector').value;
+        const days = (document.getElementById('sec_days').value || '').trim();
+        if(!copyId || !nameCode || !sector || !days){
+          alert("⚠️ يرجى تعبئة جميع حقول الانتدابات: الكوبي ايدي، اسم المنتدب وكوده، القطاع، المدة");
+          return;
+        }
+        const result =
+`*** ▬▬▬ ﷽ ▬▬
+\`\`\`الموضوع : انتداب خارجي \`\`\`
+السلام عليكم ورحمة الله وبركاته، وبعد:
+ \`\`\`cs
+# إشارة إلى طلب الموظف الموضحة بياناته أدناه بشأن الانتداب خارج الكراج، نفيدكم بأنه تمت الموافقة على طلبه وفق التفاصيل التالية:
+\`\`\`
+
+ الاسم: <@${copyId}>
+ اسم وكود الموظف : ${nameCode}
+ القطاع المنتدب له: ${sector}
+ المدة: ${days} يوم
+
+نرجوا من الموظف التقيد بالأنظمة والتعليمات الخاصة بالانتدابات، والتنسيق مع الجهة المعنية قبل المباشرة.
+
+
+<@&1149742928953086105> ***`;
+        setOut('vac_output', result);
+        return;
+      }
+
+      // إجازة داخلية
+      const copyId = document.getElementById('vac_copyId').value.trim();
+      const duration = parseInt(document.getElementById('vac_duration').value) || 0;
+      const balance  = parseInt(document.getElementById('vac_balance').value) || 0;
+      let   startHour    = parseInt(document.getElementById('vac_startHour').value) || 0;
+      let   startMinute  = parseInt(document.getElementById('vac_startMinute').value) || 0;
+      const period = document.getElementById('vac_startPeriod').value;
+
+      if(!copyId || duration <= 0 || balance <= 0 || startHour <= 0){
+        alert("⚠️ يرجى إدخال جميع الحقول بشكل صحيح"); return;
+      }
+      if(period === "م" && startHour < 12) startHour += 12;
+      if(period === "ص" && startHour === 12) startHour = 0;
+
+      let tzDate = new Date(new Date().toLocaleString("en-US", { timeZone: "Asia/Riyadh" })); 
+      let yyyy = tzDate.getFullYear();
+      let mm = String(tzDate.getMonth()+1).padStart(2,'0');
+      let dd = String(tzDate.getDate()).padStart(2,'0');
+
+      let startDate = new Date(`${yyyy}-${mm}-${dd}T${String(startHour).padStart(2,'0')}:${String(startMinute).padStart(2,'0')}:00`);
+      let endDate = new Date(startDate); endDate.setHours(endDate.getHours() + duration);
+
+      function formatDate(date){
+        let y=date.getFullYear(), m=String(date.getMonth()+1).padStart(2,'0'), d=String(date.getDate()).padStart(2,'0');
+        let h=date.getHours(), min=String(date.getMinutes()).padStart(2,'0');
+        let per=h>=12?"م":"ص"; h=h%12; h=h?h:12;
+        return `${y}/${m}/${d}| ${h}:${min}${per}`;
+      }
+
+      const headerText = document.getElementById('vac_vacType').value === "مشرف" ? "المشرف المحترم" : "الفني المحترم";
+
+      const result =
+`***\` إجازة داخلية \`*** 
+
+***\`${headerText} :\`***  <@${copyId}>   
+
+***\`المــــدة :\` ${duration} ساعة***  
+
+***\`الرصيد المتبقي :\` ${balance - duration} ساعة***  
+
+***من تاريخ ${formatDate(startDate)}***  
+***الى تاريخ ${formatDate(endDate)}***  
+
+***\`ملاحظة :\`***  
+***تنتهي اجازتك بنفس التوقيت اللي بترجع فية .***  
+
+***\`تنويهات هامة يجب قرائتها :\`***  
+
+***01/ تبدأ الإجازة الخاصة بك في وقتها المحدد، ويُمنع تغيير الوظيفة قبل المدة المحددة لبدء الإجازة.***  
+
+***02/ يجب العودة من الإجازة قبل انتهاء مدتها وتغيير الوظيفة إلى قطاع الميكانيك. من يخالف ذلك سيُعتبر تهرباً وظيفياً وستتم محاسبته من قِبل إدارة الكراج.***  
+
+***03/ في حال عندك عذر وقدمته بفتح تكت اجازة سيتم فقط تصفير اجازاتك مهما كان السبب وعدم اعطائك تهرب وظيفي***  
+
+***04/ في حال تم سجنك رقابيا سيتم تطبيق العقوبه عليك حسب [قوانين الاجازات](https://ptb.discord.com/channels/1071933157097615480/1071934713524133918/1416990256070135900) ***  
+
+***كذلك في حال تعديت نص الاسبوع ( الثلاثاء ) او كان رصيدك اقل من نص اجماليك سيتم تصفيرك الاسبوع الحالي والقادم***  
+
+***05/يمنع منعاً باتاً تغيير الاسم داخل المقاطعة حسب [قوانين الاجازات](https://ptb.discord.com/channels/1071933157097615480/1071934713524133918/1416990256070135900) ***
+
+<@&1149742928953086105>`;
+      setOut('vac_output', result);
+    }
+
+    // ---------- Resignation ----------
+    function res_toggleLevel(){
+      const t = document.getElementById('res_type').value;
+      document.getElementById('res_levelBox').style.display = (t==='اعلى') ? 'block' : 'none';
+    }
+    function res_generate(){
+      const type = document.getElementById('res_type').value;
+      const copyId = (document.getElementById('res_copyId').value || '').trim();
+      const nameCode = (document.getElementById('res_nameCode').value || '').trim();
+      const supervisorId = (document.getElementById('res_supervisorId').value || '').trim();
+      const levelNumber = (document.getElementById('res_levelNumber').value || '').trim();
+
+      if(!copyId){ alert("⚠️ يرجى إدخال الكوبي ايدي"); return; }
+      if(!nameCode){ alert("⚠️ يرجى إدخال اسم وكود الفني كتابتاً"); return; }
+      if(!supervisorId){ alert("⚠️ يرجى إدخال كوبي ايدي المشرف"); return; }
+
+      if(type === 'مستوى متدرب' || type === 'مستوى 1'){
+        const reasonLine = (type === 'مستوى متدرب')
+          ? "استقالة برتبة مستوى (متدرب )"
+          : "استقالة برتبة مستوى ( 1)";
+
+        const txt =
+`*** ▬▬▬ ﷽ ▬▬
+\`\`\`diff
+
+-الموضوع : قرار انهاء خدمات
+\`\`\`
+\`\`\`cs
+# بعد الاطلاع على نظام التوظيف والترقيات وانهاء الخدمة الصادر من ادارة الكراج قررنا مايلي 
+ 
+اولاً: تنهى خدمات الفني ادناه اعتبارا من تاريخه
+ثانياً: منع توظيف 14 يوم
+ثالثاً:غرامه مالية قدرها 1,000,000 تسلم الى خزينة الكراج
+\`\`\`
+
+<@${copyId}>
+${nameCode}
+
+\`\`\`وذلك بسبب : ${reasonLine} \`\`\`
+
+\`نوع السحب : \`  [فاتورة](رابط الفاتورة) 
+
+\`اعتماد:\` <@${supervisorId}>
+
+\`توقيع مدير الخزينة: \`
+<@1182445629721563177> 
+<@&1071933343123386429> 
+
+يرسل الاصل الى : 
+<@&1149742928953086105> ***`;
+        setOut('res_output', txt);
+        return;
+      }
+
+      if(type === 'اعلى'){
+        if(!levelNumber || parseInt(levelNumber,10) < 2){
+          alert("⚠️ أدخل رقم مستوى صالح (2 فأعلى)"); return;
+        }
+        const txt =
+`*** ▬▬▬ ﷽ ▬▬
+\`\`\`diff
+
+-الموضوع : قرار انهاء خدمات
+\`\`\`
+\`\`\`cs
+# بعد الاطلاع على نظام التوظيف والترقيات وانهاء الخدمة الصادر من ادارة الكراج قررنا مايلي 
+ 
+اولاً: تنهى خدمات الفني ادناه اعتبارا من تاريخه\`\`\`
+
+<@${copyId}>
+${nameCode}
+
+\`\`\`وذلك بسبب : استقالة برتبة مستوى (${levelNumber}) بناءاً على طلبه \`\`\`
+
+\`توقيع واعتماد:\`
+<@${supervisorId}>
+
+\`يرسل الاصل الى : \`
+<@&1149742928953086105> ***`;
+        setOut('res_output', txt);
+      }
+    }
+
+    // ---------- Violations ----------
+    function vio_generate(){
+      const copyId = (document.getElementById('vio_copyId').value || '').trim();
+      const warningLevel = document.getElementById('vio_warningLevel').value;
+      const fineAmount = (document.getElementById('vio_fineAmount')?.value || '').trim();
+      const violation = document.getElementById('vio_selected').value || '';
+      const supervisorId = (document.getElementById('vio_supervisorId')?.value || '').trim();
+
+      if(!copyId){ alert("⚠️ يرجى إدخال الكوبي ايدي"); return; }
+      if(!violation){ alert("⚠️ يرجى اختيار سبب المخالفة"); return; }
+      if(!supervisorId){ alert("⚠️ يرجى إدخال كوبي ايدي المشرف"); return; }
+
+      if(warningLevel === 'شفهي'){
+        const txt =
+`▬▬▬ ﷽ ▬▬
+\`\`\`diff
+
+-الموضوع : انذار (شفهي) 
+\`\`\`
+\`\`\`cs
+# بعد الاطلاع على نظام المخالفات والعقوبات الصادر من ادارة الكراج قررنا مايلي 
+ 
+اولاً: انذار (شفهي) 
+\`\`\`
+
+ الكوبي ايدي للفني <@${copyId}>
+
+\`\`\`وذلك بسبب :  ${violation}\`\`\`
+
+
+\`اعتماد:\` <@${supervisorId}>`;
+        setOut('vio_output', txt);
+        return;
+      }
+
+      if(!fineAmount){ alert("⚠️ يرجى إدخال قيمة الغرامة"); return; }
+
+      const txt =
+`*** ▬▬▬ ﷽ ▬▬
+\`\`\`diff
+
+-الموضوع : انذار وظيفي وغرامه مالية
+\`\`\`
+\`\`\`cs
+# بعد الاطلاع على نظام المخالفات والعقوبات الصادر من ادارة الكراج قررنا مايلي 
+ 
+اولاً: انذار وظيفي (${warningLevel})
+ثانياً: غرامه مالية قدرها ${fineAmount} تسلم الى خزينة الكراج\`\`\`
+
+<@${copyId}>
+
+\`\`\`وذلك بسبب : ${violation}\`\`\`
+
+\`نوع السحب : \`  [فاتورة](رابط الفاتورة) 
+
+\`اعتماد:\` <@${supervisorId}>
+
+\`توقيع مدير الخزينة \`
+<@1182445629721563177> 
+<@&1071933343123386429> 
+
+يرسل الاصل الى : 
+<@&1149742928953086105> ***`;
+      setOut('vio_output', txt);
+    }
+
+    // ---------- Absent ----------
+    function abs_generate(){
+      const copyId = document.getElementById('abs_copyId').value.trim();
+      const reason = document.getElementById('abs_selected').value || '';
+      const penalty = document.getElementById('abs_penalty').value.trim();
+      const warning = document.getElementById('abs_warning').value;
+      const notPunished = document.getElementById('abs_notPunished').value.trim();
+
+      if(!copyId || !reason || !penalty || !warning){
+        alert("يرجى ملء جميع الحقول المطلوبة"); return;
+      }
+
+      const txt =
+`***\`  نموذج إستدعاء للفني الذي لم يحضر  \`***
+
+***\`اسم الفني\`***  <@${copyId}>
+
+***\`سبب الاستدعاء \`***   ${reason}
+
+***\`قيمة المخالفة\`*** ${Number(penalty).toLocaleString()}
+
+***\` الانذار المستحق ؟ : \`*** ${warning}
+
+***\`لم تتم مخالفته بسبب\`*** ${notPunished}
+
+***الي يجيه الفني يعلمه سبب المخالفة  وينزله المخالفة في روم
+https://ptb.discord.com/channels/1071933157097615480/1071934723858894868 ***  
+
+***نسخه الى***
+ <@&1071933357136556183>  - <@&1142626431101325403>`;
+      setOut('abs_output', txt);
+    }
+
+    // ---------- External vacation ----------
+    function ext_generate(){
+      const personType = document.getElementById('ext_personType').value;
+      const headerText = (personType === 'مشرف') ? 'المشرف المحترم' : 'الفني المحترم';
+
+      const copyId = document.getElementById('ext_copyId').value.trim();
+      const days = parseInt(document.getElementById('ext_days').value,10);
+      if(!copyId || !days || days <= 0){ alert("⚠️ يرجى إدخال الكوبي ايدي والمدة بالأيام صحيحة"); return; }
+
+      let tzDate = new Date(new Date().toLocaleString("en-US", { timeZone: "Asia/Riyadh" }));
+      let startDate = new Date(tzDate.getFullYear(), tzDate.getMonth(), tzDate.getDate());
+      let endDate = new Date(startDate); endDate.setDate(endDate.getDate() + days);
+
+      const fmt = d => `${d.getFullYear()}/${String(d.getMonth()+1).padStart(2,'0')}/${String(d.getDate()).padStart(2,'0')}`;
+
+      const txt =
+`***\`  إجازة خارجية  \`***  
+
+***\`${headerText} :\`***    <@${copyId}>         
+
+***\`المــــدة :\` ${days} يوم***
+ 
+***من تاريخ ${fmt(startDate)}***
+*** الى تاريخ ${fmt(endDate)}***
+
+***\`ملاحظة :\`***
+
+***تنتهي اجازتك الخارجية في نفس يوم انتهاء الاجازة.***
+
+***\`تنويهات هامة يجب قرائتها :\`***
+
+***01/ في حال بدت الاجازة يمنع منعا باتا دخولك للمقاطعة. من يخالف ذلك سيُعتبر تهرباً وظيفياً وستتم محاسبته من قِبل إدارة الكراج.***
+
+***02/ في حال انتهاء الاجازة او اردت قطعها يجب فتح تكت اجازة وطلب قطعها او انهائها ويمنع المباشرة حتى ازالة رول اجازة وظيفية***
+ 
+<@&1149742928953086105>`;
+      setOut('ext_output', txt);
+    }
+
+    // Expose functions to inline onclicks (اختياري)
+    window.vac_toggleFields = vac_toggleFields;
+    window.vio_toggleByLevel = vio_toggleByLevel;
+    window.vac_generateVacation = vac_generateVacation;
+    window.vac_copyResult = vac_copyResult;
+    window.res_toggleLevel = res_toggleLevel;
+    window.res_generate = res_generate;
+    window.res_copy = res_copy;
+    window.vio_generate = vio_generate;
+    window.vio_copy = vio_copy;
+    window.abs_generate = abs_generate;
+    window.abs_copy = abs_copy;
+    window.ext_generate = ext_generate;
+    window.ext_copy = ext_copy;
+    window.toggleDropdown = toggleDropdown;
+  </script>
+</body>
+</html>
