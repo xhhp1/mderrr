@@ -108,6 +108,7 @@
   <button onclick="show('vacBox')">الإجازات</button>
   <button onclick="show('secBox')">الانتدابات</button>
   <button onclick="show('resignBox')">الاستقالة</button>
+  <button onclick="show('accResignBox')">استقالة المعتمد</button>
   <button onclick="show('violBox')">المخالفات</button>
   <button onclick="show('absBox')">فني لم يحضر</button>
   <button onclick="show('extBox')">إجازة خارجية</button>
@@ -129,7 +130,6 @@
   </select>
 
   <div id="vac_internalFields">
-
     <div id="vac_leadHeaderBox" style="display:none">
       <label>المخاطَب في الرسالة</label>
       <select id="vac_leadHeader">
@@ -234,6 +234,41 @@
     <button class="btn" onclick="res_copy()">📋 نسخ النتيجة</button>
   </div>
   <div id="res_output" class="output"></div>
+</div>
+
+<!-- ================= NEW: ACCREDITED RESIGNATION (استقالة المعتمد) ================= -->
+<div id="accResignBox" class="container">
+  <h2>✅ استقالة المعتمد ✅</h2>
+
+  <label>نوع الاستقالة</label>
+  <select id="acc_type" onchange="acc_toggleLevel()">
+    <option value="trainee_1">استقالة بمستوى (متدرب & 1)</option>
+    <option value="level_2_3">مستوى 2 و 3</option>
+  </select>
+
+  <label>منشن للمعتمد (الكوبي ايدي)</label>
+  <input type="number" id="acc_copyId" placeholder="أدخل كوبي ايدي المعتمد">
+
+  <div id="acc_levelBox" style="display:none">
+    <label id="acc_levelLabel">رقم المستوى (2 أو 3)</label>
+    <input type="number" id="acc_levelNumber" placeholder="اكتب 2 أو 3 فقط">
+  </div>
+
+  <label>اسم و كود المعتمد (كتابة)</label>
+  <input type="text" id="acc_nameCode" placeholder="مثال: فلان الفلاني [G-020]">
+
+  <label>اعتماد / توقيع (منشن لنفسك - كوبي ايدي)</label>
+  <input type="number" id="acc_selfId" placeholder="أدخل كوبي ايدي (منشن لنفسك)">
+
+  <label>مسؤول في اعطاء الاذن (كوبي ايدي)</label>
+  <input type="number" id="acc_permissionId" placeholder="اكتب كوبي ايدي مسؤول اعطاء الاذن">
+
+  <div class="button-row">
+    <button class="btn" onclick="acc_generate()">إنشاء</button>
+    <button class="btn" onclick="acc_copy()">📋 نسخ</button>
+  </div>
+
+  <div id="acc_output" class="output"></div>
 </div>
 
 <!-- ================= VIOLATIONS (المخالفات) ================= -->
@@ -660,6 +695,8 @@ function vac_generateVacation(){
 
   let headerText = 'الفني المحترم';
   if(type === 'مشرف') headerText = 'المشرف المحترم';
+  if(type === 'مستوى متدرب') headerText = 'الفني المحترم';
+  if(type === 'مستوى 1') headerText = 'الفني المحترم';
   if(isLeadershipReward){
     headerText = document.getElementById('vac_leadHeader').value;
   }
@@ -773,7 +810,6 @@ function res_generate(){
   if(!nameCode){ alert("⚠️ يرجى إدخال الاسم و الكود"); return; }
   if(!signerId){ alert("⚠️ يرجى إدخال كوبي ايدي (توقيع)"); return; }
 
-  // استقالة مشرف 4-6
   if(type === 'supervisor_4_6'){
     if(!levelRaw || isNaN(levelNum) || levelNum < 4 || levelNum > 6){
       alert("⚠️ أدخل رقم مستوى صحيح بين 4 و 6"); return;
@@ -812,7 +848,6 @@ ${nameCode}
     return;
   }
 
-  // تقاعد 7-9
   if(type === 'retire_7_9'){
     if(!levelRaw || isNaN(levelNum) || levelNum < 7 || levelNum > 9){
       alert("⚠️ أدخل رقم مستوى صحيح بين 7 و 9"); return;
@@ -851,7 +886,6 @@ ${nameCode}
     return;
   }
 
-  // متدرب / مستوى 1
   if(type === 'مستوى متدرب' || type === 'مستوى 1'){
     const reasonLine = (type === 'مستوى متدرب')
       ? "استقالة برتبة مستوى (متدرب)"
@@ -891,7 +925,6 @@ ${nameCode}
     return;
   }
 
-  // مستوى 2 فأعلى
   if(type === 'اعلى'){
     if(!levelRaw || isNaN(levelNum) || levelNum < 2){
       alert("⚠️ أدخل رقم مستوى صالح (2 فأعلى)"); return;
@@ -919,6 +952,116 @@ ${nameCode}
 <@&1149742928953086105> ***`;
     const out = document.getElementById('res_output');
     out.innerText = resultHigh; out.style.display='block';
+    return;
+  }
+}
+
+/* ---------- NEW: Accredited resignation toggle/generate ---------- */
+function acc_toggleLevel(){
+  const t = document.getElementById('acc_type').value;
+  const box = document.getElementById('acc_levelBox');
+  const inp = document.getElementById('acc_levelNumber');
+  if(t === 'level_2_3'){
+    box.style.display = 'block';
+    inp.value = '';
+  } else {
+    box.style.display = 'none';
+    inp.value = '';
+  }
+}
+
+function acc_generate(){
+  const type = document.getElementById('acc_type').value;
+  const accId = (document.getElementById('acc_copyId').value || '').trim();
+  const nameCode = (document.getElementById('acc_nameCode').value || '').trim();
+  const selfId = (document.getElementById('acc_selfId').value || '').trim();
+  const permId = (document.getElementById('acc_permissionId').value || '').trim();
+  const lvlRaw = (document.getElementById('acc_levelNumber').value || '').trim();
+  const lvl = parseInt(lvlRaw,10);
+
+  if(!accId){ alert("⚠️ أدخل كوبي ايدي المعتمد"); return; }
+  if(!nameCode){ alert("⚠️ أدخل اسم و كود المعتمد"); return; }
+  if(!selfId){ alert("⚠️ أدخل كوبي ايدي (منشن لنفسك)"); return; }
+  if(!permId){ alert("⚠️ أدخل كوبي ايدي مسؤول في اعطاء الاذن"); return; }
+
+  // 1) متدرب & 1
+  if(type === 'trainee_1'){
+    const result =
+`*** ▬▬▬ ﷽ ▬▬
+\`\`\`diff
+
+-الموضوع : قرار انهاء خدمات المعتمد
+\`\`\`
+\`\`\`cs
+# بعد الاطلاع على نظام التوظيف والترقيات وانهاء الخدمة الصادر من ادارة الكراج قررنا مايلي 
+ 
+اولاً: تنهى خدمات المعتمد ادناه اعتبارا من تاريخه
+ثانياً:غرامه مالية قدرها 1,000,000 تسلم الى خزينة الكراج
+\`\`\`
+
+<@${accId}>
+${nameCode}
+
+\`\`\`وذلك بسبب : استقالة برتبة مستوى (متدرب & 1) \`\`\`
+
+\`نوع السحب : \` [فاتورة](رابط الدليل) 
+
+\`اعتماد:\` <@${selfId}>
+
+\`اعتماد مدير قسم شؤون المعتمدين:\`
+<@571068478753341453> 
+<@&1092120390324731994> 
+
+\`توقيع مدير الخزينة: \`
+<@1182445629721563177> 
+<@&1071933343123386429> 
+
+\`للمتابعة:\`
+( <@${permId}> )
+
+يرسل الاصل الى : 
+<@&1149742928953086105> ***`;
+    const out = document.getElementById('acc_output');
+    out.innerText = result; out.style.display='block';
+    return;
+  }
+
+  // 2) مستوى 2 و 3
+  if(type === 'level_2_3'){
+    if(!lvlRaw || isNaN(lvl) || (lvl !== 2 && lvl !== 3)){
+      alert("⚠️ اكتب رقم مستوى صحيح: 2 أو 3 فقط"); return;
+    }
+
+    const result =
+`*** ▬▬▬ ﷽ ▬▬
+\`\`\`diff
+
+-الموضوع : قرار انهاء خدمات معتمد
+\`\`\`
+\`\`\`cs
+# بعد الاطلاع على نظام التوظيف والترقيات وانهاء الخدمة الصادر من ادارة الكراج قررنا مايلي 
+ 
+اولاً: تنهى خدمات المعتمد ادناه اعتبارا من تاريخه\`\`\`
+
+<@${accId}>
+${nameCode}
+
+\`\`\`وذلك بسبب : استقالة برتبة مستوى (${lvl}) بناءاً على طلبه \`\`\`
+
+\`توقيع :\`
+<@${selfId}>
+
+\`اعتماد:\`
+<@571068478753341453> 
+<@&1092120390324731994> 
+
+\`للمتابعة:\`
+( <@${permId}> )
+
+\`يرسل الاصل الى : \`
+<@&1149742928953086105> ***`;
+    const out = document.getElementById('acc_output');
+    out.innerText = result; out.style.display='block';
     return;
   }
 }
@@ -1100,7 +1243,6 @@ function ext_generate(){
     return;
   }
 
-  // ===== 1) main =====
   if(mode === 'main'){
     const headerText = (personType === 'مشرف') ? 'المشرف المحترم' : 'الفني المحترم';
     const days = parseInt(document.getElementById('ext_days').value,10);
@@ -1141,7 +1283,6 @@ function ext_generate(){
     return;
   }
 
-  // ===== 2) record_leave =====
   if(mode === 'record_leave'){
     const days = parseInt(document.getElementById('ext_rec_days').value,10);
     const start = document.getElementById('ext_rec_start').value;
@@ -1158,7 +1299,6 @@ function ext_generate(){
     const startText = formatDateYMD(start);
     const endText = formatDateYMD(endStr);
 
-    // ✅ فني: نفس القديم
     if(personType === 'فني'){
       const result =
 `***\`نموذج الاجازة الخارجية \`***
@@ -1180,7 +1320,6 @@ function ext_generate(){
       return;
     }
 
-    // ✅ مشرف: قالب صحيح (بدء + انتهاء + رابط)
     const resultSupervisor =
 `***\`نموذج الاجازة الخارجية \`***
 
@@ -1201,7 +1340,6 @@ function ext_generate(){
     return;
   }
 
-  // ===== 3) record_break =====
   if(mode === 'record_break'){
     const breakDate = document.getElementById('ext_break_date').value;
     const link  = (document.getElementById('ext_break_link').value || '').trim();
@@ -1211,7 +1349,6 @@ function ext_generate(){
 
     const breakText = formatDateYMD(breakDate);
 
-    // ✅ فني: القالب اللي طلبته أنت
     if(personType === 'فني'){
       const result =
 `***\`نموذج كسر / رجوع من الاجازة الخارجية \`***
@@ -1229,7 +1366,6 @@ function ext_generate(){
       return;
     }
 
-    // ✅ مشرف: قالب المشرف
     const resultSupervisor =
 `***\`نموذج كسر / رجوع من الاجازة الخارجية \`***
 
@@ -1428,6 +1564,7 @@ function ext_copy(){ copyToClipboard(document.getElementById('ext_output')?.inne
 function sec_copy(){ copyToClipboard(document.getElementById('sec_output')?.innerText || ""); }
 function role_copy(){ copyToClipboard(document.getElementById('role_output')?.innerText || ""); }
 function ticket_copy(){ copyToClipboard(document.getElementById('ticket_output')?.innerText || ""); }
+function acc_copy(){ copyToClipboard(document.getElementById('acc_output')?.innerText || ""); }
 
 /* ---------- عند التحميل ---------- */
 document.addEventListener('DOMContentLoaded', ()=>{
@@ -1437,6 +1574,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
   ext_toggleMode();
   res_toggleLevel();
   ticket_toggleFields();
+  acc_toggleLevel();
 
   const recDaysInput = document.getElementById('ext_rec_days');
   const recStartInput = document.getElementById('ext_rec_start');
