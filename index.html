@@ -1121,31 +1121,57 @@ function ext_generate(){
     return;
   }
 
-  /* ✅ سجلات الموظفين - كسر الاجازة الخارجية */
-  if(mode === 'record_break'){
-    const breakDate = document.getElementById('ext_break_date').value;
-    const link = (document.getElementById('ext_break_link').value || '').trim();
+/* ✅ سجلات الموظفين - كسر الاجازة الخارجية */
+if(mode === 'record_break'){
+  const breakDate = document.getElementById('ext_break_date').value;
+  const link = (document.getElementById('ext_break_link').value || '').trim();
 
-    if(!breakDate){ alert("⚠️ يرجى إدخال تاريخ كسر/رجوع من الاجازة"); return; }
-    if(!link){ alert("⚠️ يرجى إدخال رابط الاجازة"); return; }
+  if(!breakDate){
+    alert("⚠️ يرجى إدخال تاريخ كسر/رجوع من الاجازة");
+    return;
+  }
+  if(!link){
+    alert("⚠️ يرجى إدخال رابط الاجازة");
+    return;
+  }
 
-    const breakText = formatDateYMD(breakDate);
+  const breakText = formatDateYMD(breakDate);
 
+  /* ✅ فني = القالب الجديد */
+  if(personType === 'فني'){
     const result =
 `***\`نموذج كسر / رجوع من الاجازة الخارجية \`***
 
-***\`اسم ${roleWord}  :\` ( <@${copyId}> ) ***
+***\`اسم الفني  :\`***  ***( <@${copyId}> ) ***
 
-***\`تاريخ كسر/رجوع من الاجازة :\` ( ${breakText} )  ***
+***\`تاريخ كسر/رجوع من الاجازة :\`*** *** ( ${breakText} ) ***
+
+***\`نسخة للقرار :\`*** *** ( ${link} ) ***
+
+***\`للعلم والاحاطة/\`***
+<@1059976190988910772> & <@792640279684710412> & <@1069596605080162397>`;
+    const out = document.getElementById('ext_output');
+    out.innerText = result;
+    out.style.display = 'block';
+    return;
+  }
+
+  /* ✅ مشرف = القالب القديم */
+  const resultSupervisor =
+`***\`نموذج كسر / رجوع من الاجازة الخارجية \`***
+
+***\`اسم المشرف  :\` ( <@${copyId}> ) ***
+
+***\`تاريخ كسر/رجوع من الاجازة :\` ( ${breakText} ) ***
 
 ***\`نسخة للقرار :\` ( ${link} ) ***
 
 ***\`للعلم والاحاطة/\`***
 <@1140931533285367852>&<@818887908265033728>`;
-    const out = document.getElementById('ext_output');
-    out.innerText = result; out.style.display='block';
-    return;
-  }
+  const out = document.getElementById('ext_output');
+  out.innerText = resultSupervisor;
+  out.style.display = 'block';
+  return;
 }
 
 /* ===================== COPY HELPERS ===================== */
@@ -1207,4 +1233,5 @@ document.addEventListener('DOMContentLoaded', ()=>{
 
 </body>
 </html>
+
 
