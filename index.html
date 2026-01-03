@@ -243,24 +243,24 @@
   <label>نوع الاستقالة</label>
   <select id="acc_type" onchange="acc_toggleLevel()">
     <option value="trainee_1">استقالة بمستوى (متدرب & 1)</option>
-    <option value="level_2_3">مستوى 2 و 3</option>
+    <option value="level_2_6">مستوى 2 و اعلى</option>
   </select>
 
   <label>منشن للمعتمد (الكوبي ايدي)</label>
   <input type="number" id="acc_copyId" placeholder="أدخل كوبي ايدي المعتمد">
 
   <div id="acc_levelBox" style="display:none">
-    <label id="acc_levelLabel">رقم المستوى (2 أو 3)</label>
+    <label id="acc_levelLabel">رقم المستوى (2 و اعلى )</label>
     <input type="number" id="acc_levelNumber" placeholder="اكتب 2 أو 3 فقط">
   </div>
 
   <label>اسم و كود المعتمد (كتابة)</label>
-  <input type="text" id="acc_nameCode" placeholder="مثال: فلان الفلاني [G-020]">
+  <input type="text" id="acc_nameCode" placeholder="مثال:  حـمـد بـن عـسـكـر [CC|G-020]">
 
-  <label>اعتماد / توقيع (منشن لنفسك - كوبي ايدي)</label>
+  <label> منشن لنفسك </label>
   <input type="number" id="acc_selfId" placeholder="أدخل كوبي ايدي (منشن لنفسك)">
 
-  <label>مسؤول في اعطاء الاذن (كوبي ايدي)</label>
+  <label>مسؤول في اعطاء الاذن </label>
   <input type="number" id="acc_permissionId" placeholder="اكتب كوبي ايدي مسؤول اعطاء الاذن">
 
   <div class="button-row">
@@ -1588,3 +1588,4 @@ document.addEventListener('DOMContentLoaded', ()=>{
 
 </body>
 </html>
+
