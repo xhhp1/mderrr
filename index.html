@@ -212,7 +212,6 @@
     <option value="مستوى 1">مستوى 1</option>
     <option value="اعلى">مستوى 2 فأعلى</option>
 
-    <!-- ✅ NEW OPTIONS -->
     <option value="supervisor_4_6">استقالة مشرف من 4-6</option>
     <option value="retire_7_9">تقاعد مستوى 7-9</option>
   </select>
@@ -220,9 +219,10 @@
   <label>الكوبي ايدي</label>
   <input type="number" id="res_copyId" placeholder="أدخل الكوبي ايدي">
 
+  <!-- ✅ نفس خانة رقم المستوى تُستخدم لثلاث خيارات: أعلى / استقالة مشرف / تقاعد -->
   <div id="res_levelBox" style="display:none">
-    <label>رقم المستوى (2 فأعلى)</label>
-    <input type="number" id="res_levelNumber" min="2" placeholder="أدخل رقم المستوى">
+    <label id="res_levelLabel">رقم المستوى</label>
+    <input type="number" id="res_levelNumber" placeholder="أدخل رقم المستوى">
   </div>
 
   <label>اسم وكود الفني كتابتا</label>
@@ -744,21 +744,37 @@ function sec_generate(){
 /* ---------- RESIGNATION ---------- */
 function res_toggleLevel(){
   const t = document.getElementById('res_type').value;
-  document.getElementById('res_levelBox').style.display = (t==='اعلى') ? 'block' : 'none';
+  const box = document.getElementById('res_levelBox');
+  const label = document.getElementById('res_levelLabel');
+
+  if(t === 'اعلى' || t === 'supervisor_4_6' || t === 'retire_7_9'){
+    box.style.display = 'block';
+    if(t === 'اعلى') label.innerText = 'رقم المستوى (2 فأعلى)';
+    if(t === 'supervisor_4_6') label.innerText = 'رقم المستوى (4 - 6)';
+    if(t === 'retire_7_9') label.innerText = 'رقم المستوى (7 - 9)';
+  } else {
+    box.style.display = 'none';
+  }
 }
+
 function res_generate(){
   const type = document.getElementById('res_type').value;
   const copyId = (document.getElementById('res_copyId').value || '').trim();
   const nameCode = (document.getElementById('res_nameCode').value || '').trim();
   const supervisorId = (document.getElementById('res_supervisorId').value || '').trim();
-  const levelNumber = (document.getElementById('res_levelNumber').value || '').trim();
+  const levelNumberRaw = (document.getElementById('res_levelNumber').value || '').trim();
+  const levelNumber = parseInt(levelNumberRaw,10);
 
   if(!copyId){ alert("⚠️ يرجى إدخال الكوبي ايدي"); return; }
   if(!nameCode){ alert("⚠️ يرجى إدخال اسم وكود الفني كتابتاً"); return; }
   if(!supervisorId){ alert("⚠️ يرجى إدخال كوبي ايدي المشرف"); return; }
 
-  // ✅ NEW: استقالة مشرف من 4-6
+  // ✅ استقالة مشرف (رقم مستوى من 4-6)
   if(type === 'supervisor_4_6'){
+    if(!levelNumberRaw || isNaN(levelNumber) || levelNumber < 4 || levelNumber > 6){
+      alert("⚠️ أدخل رقم مستوى صحيح بين 4 و 6"); return;
+    }
+
     const result =
 `*** ▬▬▬ ﷽ ▬▬
 \`\`\`diff
@@ -776,7 +792,7 @@ ${nameCode}
 
 **نشكر جهوده المبذوله وما قدمه للقطاع ونتمنى له التوفيق**
 
-\`\`\`وذلك بسبب : استقالة برتبة مستوى (4,5,6) بناءاً على طلبه  \`\`\`
+\`\`\`وذلك بسبب : استقالة برتبة مستوى (${levelNumber}) بناءاً على طلبه  \`\`\`
 
 \`توقيع:\`
 <@${supervisorId}>
@@ -792,8 +808,12 @@ ${nameCode}
     return;
   }
 
-  // ✅ NEW: تقاعد مستوى 7-9
+  // ✅ تقاعد (رقم مستوى من 7-9)
   if(type === 'retire_7_9'){
+    if(!levelNumberRaw || isNaN(levelNumber) || levelNumber < 7 || levelNumber > 9){
+      alert("⚠️ أدخل رقم مستوى صحيح بين 7 و 9"); return;
+    }
+
     const result =
 `*** ▬▬▬ ﷽ ▬▬
 \`\`\`diff
@@ -811,7 +831,7 @@ ${nameCode}
 
 **نشكر جهوده المبذوله وما قدمه للقطاع ونتمنى له التوفيق**
 
-\`\`\`وذلك احالة الى التقاعد برتبة مستوى (7,8,9) بناءاً على طلبه \`\`\`
+\`\`\`وذلك احالة الى التقاعد برتبة مستوى (${levelNumber}) بناءاً على طلبه \`\`\`
 
 \`توقيع:\`
 <@${supervisorId}>
@@ -827,6 +847,7 @@ ${nameCode}
     return;
   }
 
+  // ✅ متدرب / مستوى 1
   if(type === 'مستوى متدرب' || type === 'مستوى 1'){
     const reasonLine = (type === 'مستوى متدرب')
       ? "استقالة برتبة مستوى (متدرب)"
@@ -866,8 +887,9 @@ ${nameCode}
     return;
   }
 
+  // ✅ أعلى (2 فأعلى)
   if(type === 'اعلى'){
-    if(!levelNumber || parseInt(levelNumber,10) < 2){
+    if(!levelNumberRaw || isNaN(levelNumber) || levelNumber < 2){
       alert("⚠️ أدخل رقم مستوى صالح (2 فأعلى)"); return;
     }
     const resultHigh =
@@ -1112,6 +1134,7 @@ function ext_generate(){
     return;
   }
 
+  /* ✅ سجلات الموظفين - إجازة خارجية */
   if(mode === 'record_leave'){
     const days = parseInt(document.getElementById('ext_rec_days').value,10);
     const start = document.getElementById('ext_rec_start').value;
@@ -1128,7 +1151,9 @@ function ext_generate(){
     const startText = formatDateYMD(start);
     const endText = formatDateYMD(endStr);
 
-    const result =
+    // ✅ فني = نفس التمبلت القديم
+    if(personType !== 'مشرف'){
+      const result =
 `***\`نموذج الاجازة الخارجية \`***
 
 ***\`اسم ${roleWord}  :\`  ( <@${copyId}> ) ***
@@ -1143,45 +1168,18 @@ function ext_generate(){
 
 ***\`للعلم والاحاطة/\`***
 <@1059976190988910772> & <@818887908265033728>`;
-    const out = document.getElementById('ext_output');
-    out.innerText = result; out.style.display='block';
-    return;
-  }
-
-  if(mode === 'record_break'){
-    const breakDate = document.getElementById('ext_break_date').value;
-    const link = (document.getElementById('ext_break_link').value || '').trim();
-
-    if(!breakDate){ alert("⚠️ يرجى إدخال تاريخ كسر/رجوع من الاجازة"); return; }
-    if(!link){ alert("⚠️ يرجى إدخال رابط الاجازة"); return; }
-
-    const breakText = formatDateYMD(breakDate);
-
-    // ✅ فني = نفس التمبلت القديم
-    if(personType !== 'مشرف'){
-      const result =
-`***\`نموذج كسر / رجوع من الاجازة الخارجية \`***
-
-***\`اسم ${roleWord}  :\` ( <@${copyId}> ) ***
-
-***\`تاريخ كسر/رجوع من الاجازة :\` ( ${breakText} ) ***
-
-***\`نسخة للقرار :\` ( ${link} ) ***
-
-***\`للعلم والاحاطة/\`***
-<@1059976190988910772> & <@792640279684710412> & <@1069596605080162397>`;
       const out = document.getElementById('ext_output');
       out.innerText = result; out.style.display='block';
       return;
     }
 
-    // ✅ مشرف = التمبلت الجديد
+    // ✅ مشرف = التمبلت الجديد (حسب طلبك)
     const resultSupervisor =
-`***\`نموذج كسر / رجوع من الاجازة الخارجية \`***
+`***\`نموذج الاجازة الخارجية \`***
 
-***\`اسم المشرف  :\` ( <@${copyId}> ) ***
+***\`اسم الفني  :\` ( ${roleWord} : ( <@${copyId}> ) ) ***
 
-***\`تاريخ كسر/رجوع من الاجازة :\` ( ${breakText} ) ***
+***\`تاريخ كسر/رجوع من الاجازة :\` ( ${startText} )  ***
 
 ***\`نسخة للقرار :\` ( ${link} ) ***
 
@@ -1189,6 +1187,32 @@ function ext_generate(){
 <@1140931533285367852>&<@818887908265033728>`;
     const out = document.getElementById('ext_output');
     out.innerText = resultSupervisor; out.style.display='block';
+    return;
+  }
+
+  /* ✅ سجلات الموظفين - كسر الاجازة الخارجية (نفس تمبلتك للجميع) */
+  if(mode === 'record_break'){
+    const breakDate = document.getElementById('ext_break_date').value;
+    const link = (document.getElementById('ext_break_link').value || '').trim();
+
+    if(!breakDate){ alert("⚠️ يرجى إدخال تاريخ كسر/رجوع من الاجازة"); return; }
+    if(!link){ alert("⚠️ يرجى إدخال رابط الاجازة"); return; }
+
+    const startText = formatDateYMD(breakDate);
+
+    const result =
+`***\`نموذج كسر / رجوع من الاجازة الخارجية \`***
+
+***\`اسم الفني  :\` ( ${roleWord} : ( <@${copyId}> ) ) ***
+
+***\`تاريخ كسر/رجوع من الاجازة :\` ( ${startText} )  ***
+
+***\`نسخة للقرار :\` ( ${link} ) ***
+
+***\`للعلم والاحاطة/\`***
+<@1140931533285367852>&<@818887908265033728>`;
+    const out = document.getElementById('ext_output');
+    out.innerText = result; out.style.display='block';
     return;
   }
 }
@@ -1224,7 +1248,7 @@ function role_generate(){
   out.style.display = 'block';
 }
 
-/* ================= NEW: Ticket Templates logic ================= */
+/* ================= Ticket Templates ================= */
 function ticket_toggleFields(){
   const t = document.getElementById('ticket_type').value;
   const promo = document.getElementById('ticket_promoFields');
@@ -1337,7 +1361,7 @@ ${reasonsBullets ? ("\n" + reasonsBullets) : ""}`;
   out.style.display = 'block';
 }
 
-/* ===================== COPY HELPERS (FIX) ===================== */
+/* ===================== COPY HELPERS ===================== */
 function copyToClipboard(text){
   if(!text || !text.trim()){
     alert("⚠️ لا يوجد نتيجة لنسخها");
@@ -1386,6 +1410,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
   show('vacBox');
   ext_toggleMode();
   ticket_toggleFields();
+  res_toggleLevel();
 
   const recDaysInput = document.getElementById('ext_rec_days');
   const recStartInput = document.getElementById('ext_rec_start');
