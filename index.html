@@ -211,7 +211,6 @@
     <option value="مستوى متدرب">مستوى متدرب</option>
     <option value="مستوى 1">مستوى 1</option>
     <option value="اعلى">مستوى 2 فأعلى</option>
-
     <option value="supervisor_4_6">استقالة مشرف من 4-6</option>
     <option value="retire_7_9">تقاعد مستوى 7-9</option>
   </select>
@@ -224,11 +223,11 @@
     <input type="number" id="res_levelNumber" placeholder="أدخل رقم المستوى">
   </div>
 
-  <label>اسم وكود الفني كتابتا</label>
+  <label>اسم و كود (كتابة)</label>
   <input type="text" id="res_nameCode" placeholder="اكتب الاسم والكود كتابتاً">
 
-  <label>كوبي ايدي المشرف</label>
-  <input type="number" id="res_supervisorId" placeholder="أدخل كوبي ايدي المشرف">
+  <label>كوبي ايدي (التوقيع)</label>
+  <input type="number" id="res_supervisorId" placeholder="أدخل كوبي ايدي (توقيع)">
 
   <div class="button-row">
     <button class="btn" onclick="res_generate()">إنشاء الرسالة</button>
@@ -532,7 +531,10 @@ function toggleDropdown(name){
   }
 }
 function closeAllDropdowns(){
-  document.querySelectorAll('.cd-panel').forEach(p=>{ p.style.display='none'; p.setAttribute('aria-hidden','true'); });
+  document.querySelectorAll('.cd-panel').forEach(p=>{
+    p.style.display='none';
+    p.setAttribute('aria-hidden','true');
+  });
 }
 
 document.addEventListener('click', function(e){
@@ -582,6 +584,7 @@ function vac_toggleFields(){
     if(leadHeaderSel) leadHeaderSel.value = '';
   }
 }
+
 function vac_toggleManualTime(){
   const manual = document.getElementById('vac_manualTime').checked;
   document.getElementById('vac_timeRow').style.display = manual ? 'flex' : 'none';
@@ -715,7 +718,7 @@ function sec_generate(){
   const days = (document.getElementById('sec_days').value || '').trim();
 
   if(!copyId || !nameCode || !sector || !days){
-    alert("⚠️ يرجى تعبئة جميع حقول الانتدابات: الكوبي ايدي، اسم المنتدب وكوده، القطاع المنتدب له، المدة");
+    alert("⚠️ يرجى تعبئة جميع حقول الانتدابات");
     return;
   }
 
@@ -744,14 +747,17 @@ function res_toggleLevel(){
   const t = document.getElementById('res_type').value;
   const box = document.getElementById('res_levelBox');
   const label = document.getElementById('res_levelLabel');
+  const input = document.getElementById('res_levelNumber');
 
   if(t === 'اعلى' || t === 'supervisor_4_6' || t === 'retire_7_9'){
     box.style.display = 'block';
+    input.value = '';
     if(t === 'اعلى') label.innerText = 'رقم المستوى (2 فأعلى)';
     if(t === 'supervisor_4_6') label.innerText = 'رقم المستوى (4 - 6)';
     if(t === 'retire_7_9') label.innerText = 'رقم المستوى (7 - 9)';
   } else {
     box.style.display = 'none';
+    input.value = '';
   }
 }
 
@@ -759,16 +765,17 @@ function res_generate(){
   const type = document.getElementById('res_type').value;
   const copyId = (document.getElementById('res_copyId').value || '').trim();
   const nameCode = (document.getElementById('res_nameCode').value || '').trim();
-  const supervisorId = (document.getElementById('res_supervisorId').value || '').trim();
-  const levelNumberRaw = (document.getElementById('res_levelNumber').value || '').trim();
-  const levelNumber = parseInt(levelNumberRaw,10);
+  const signerId = (document.getElementById('res_supervisorId').value || '').trim();
+  const levelRaw = (document.getElementById('res_levelNumber').value || '').trim();
+  const levelNum = parseInt(levelRaw,10);
 
   if(!copyId){ alert("⚠️ يرجى إدخال الكوبي ايدي"); return; }
-  if(!nameCode){ alert("⚠️ يرجى إدخال اسم وكود الفني كتابتاً"); return; }
-  if(!supervisorId){ alert("⚠️ يرجى إدخال كوبي ايدي المشرف"); return; }
+  if(!nameCode){ alert("⚠️ يرجى إدخال الاسم و الكود"); return; }
+  if(!signerId){ alert("⚠️ يرجى إدخال كوبي ايدي (توقيع)"); return; }
 
+  // استقالة مشرف 4-6
   if(type === 'supervisor_4_6'){
-    if(!levelNumberRaw || isNaN(levelNumber) || levelNumber < 4 || levelNumber > 6){
+    if(!levelRaw || isNaN(levelNum) || levelNum < 4 || levelNum > 6){
       alert("⚠️ أدخل رقم مستوى صحيح بين 4 و 6"); return;
     }
     const result =
@@ -788,11 +795,11 @@ ${nameCode}
 
 **نشكر جهوده المبذوله وما قدمه للقطاع ونتمنى له التوفيق**
 
-\`\`\`وذلك بسبب : استقالة برتبة مستوى (${levelNumber}) بناءاً على طلبه  \`\`\`
+\`\`\`وذلك بسبب : استقالة برتبة مستوى (${levelNum}) بناءاً على طلبه  \`\`\`
 
 
 \`توقيع:\`
-<@${supervisorId}>
+<@${signerId}>
 
 \`اعتماد:\`
 <@&1142626604732915812> 
@@ -805,8 +812,9 @@ ${nameCode}
     return;
   }
 
+  // تقاعد 7-9
   if(type === 'retire_7_9'){
-    if(!levelNumberRaw || isNaN(levelNumber) || levelNumber < 7 || levelNumber > 9){
+    if(!levelRaw || isNaN(levelNum) || levelNum < 7 || levelNum > 9){
       alert("⚠️ أدخل رقم مستوى صحيح بين 7 و 9"); return;
     }
     const result =
@@ -826,11 +834,11 @@ ${nameCode}
 
 **نشكر جهوده المبذوله وما قدمه للقطاع ونتمنى له التوفيق**
 
-\`\`\`وذلك احالة الى التقاعد برتبة مستوى (${levelNumber}) بناءاً على طلبه \`\`\`
+\`\`\`وذلك احالة الى التقاعد برتبة مستوى (${levelNum}) بناءاً على طلبه \`\`\`
 
 
 \`توقيع:\`
-<@${supervisorId}>
+<@${signerId}>
 
 \`اعتماد:\`
 <@&1142626604732915812> 
@@ -843,6 +851,7 @@ ${nameCode}
     return;
   }
 
+  // متدرب / مستوى 1
   if(type === 'مستوى متدرب' || type === 'مستوى 1'){
     const reasonLine = (type === 'مستوى متدرب')
       ? "استقالة برتبة مستوى (متدرب)"
@@ -869,7 +878,7 @@ ${nameCode}
 
 \`نوع السحب : \`  [فاتورة](رابط الفاتورة) 
 
-\`اعتماد:\` <@${supervisorId}>
+\`اعتماد:\` <@${signerId}>
 
 \`توقيع مدير الخزينة: \`
 <@1182445629721563177> 
@@ -882,8 +891,9 @@ ${nameCode}
     return;
   }
 
+  // مستوى 2 فأعلى
   if(type === 'اعلى'){
-    if(!levelNumberRaw || isNaN(levelNumber) || levelNumber < 2){
+    if(!levelRaw || isNaN(levelNum) || levelNum < 2){
       alert("⚠️ أدخل رقم مستوى صالح (2 فأعلى)"); return;
     }
     const resultHigh =
@@ -900,10 +910,10 @@ ${nameCode}
 <@${copyId}>
 ${nameCode}
 
-\`\`\`وذلك بسبب : استقالة برتبة مستوى (${levelNumber}) بناءاً على طلبه \`\`\`
+\`\`\`وذلك بسبب : استقالة برتبة مستوى (${levelNum}) بناءاً على طلبه \`\`\`
 
 \`توقيع واعتماد:\`
-<@${supervisorId}>
+<@${signerId}>
 
 \`يرسل الاصل الى : \`
 <@&1149742928953086105> ***`;
@@ -913,13 +923,80 @@ ${nameCode}
   }
 }
 
+/* ---------- VIOLATIONS (المخالفات) ---------- */
+function vio_generate(){
+  const copyId = (document.getElementById('vio_copyId').value || '').trim();
+  const warningLevel = document.getElementById('vio_warningLevel').value;
+  const fineAmount = (document.getElementById('vio_fineAmount')?.value || '').trim();
+  const violation = document.getElementById('vio_selected').value || '';
+  const supervisorId = (document.getElementById('vio_supervisorId')?.value || '').trim();
+
+  if(!copyId){ alert("⚠️ يرجى إدخال الكوبي ايدي"); return; }
+  if(!violation){ alert("⚠️ يرجى اختيار سبب المخالفة"); return; }
+  if(!supervisorId){ alert("⚠️ يرجى إدخال كوبي ايدي المشرف"); return; }
+
+  if(warningLevel === 'شفهي'){
+    const resultShafahi =
+`▬▬▬ ﷽ ▬▬
+\`\`\`diff
+
+-الموضوع : انذار (شفهي) 
+\`\`\`
+\`\`\`cs
+# بعد الاطلاع على نظام المخالفات والعقوبات الصادر من ادارة الكراج قررنا مايلي 
+ 
+اولاً: انذار (شفهي) 
+\`\`\`
+
+\` الفني : \` <@${copyId}>
+
+\`\`\`وذلك بسبب :  ${violation}\`\`\`
+
+\`اعتماد:\` <@${supervisorId}>`;
+    const out = document.getElementById('vio_output');
+    out.innerText = resultShafahi; out.style.display='block';
+    return;
+  }
+
+  if(!fineAmount){ alert("⚠️ يرجى إدخال قيمة الغرامة"); return; }
+
+  const result =
+`*** ▬▬▬ ﷽ ▬▬
+\`\`\`diff
+
+-الموضوع : انذار وظيفي وغرامه مالية
+\`\`\`
+\`\`\`cs
+# بعد الاطلاع على نظام المخالفات والعقوبات الصادر من ادارة الكراج قررنا مايلي 
+ 
+اولاً: انذار وظيفي (${warningLevel})
+ثانياً: غرامه مالية قدرها ${fineAmount} تسلم الى خزينة الكراج\`\`\`
+
+<@${copyId}>
+
+\`\`\`وذلك بسبب : ${violation}\`\`\`
+
+\`نوع السحب : \`  [فاتورة](رابط الفاتورة) 
+
+\`اعتماد:\` <@${supervisorId}>
+
+\`توقيع مدير الخزينة \`
+<@1182445629721563177> 
+<@&1071933343123386429> 
+
+يرسل الاصل الى : 
+<@&1149742928953086105> ***`;
+  const out = document.getElementById('vio_output');
+  out.innerText = result; out.style.display='block';
+}
+
 /* ---------- ABSENT (فني لم يحضر) ---------- */
 function abs_generate(){
-  const copyId = document.getElementById('abs_copyId').value.trim();
+  const copyId = (document.getElementById('abs_copyId').value || '').trim();
   const reason = document.getElementById('abs_selected').value || '';
-  const penalty = document.getElementById('abs_penalty').value.trim();
+  const penalty = (document.getElementById('abs_penalty').value || '').trim();
   const warning = document.getElementById('abs_warning').value;
-  const notPunished = document.getElementById('abs_notPunished').value.trim();
+  const notPunished = (document.getElementById('abs_notPunished').value || '').trim();
 
   if(!copyId || !reason || !penalty || !warning){
     alert("يرجى ملء جميع الحقول المطلوبة"); return;
@@ -1015,8 +1092,7 @@ function autoTodayOnFocus(id){
 
 function ext_generate(){
   const mode = document.getElementById('ext_mode').value;
-  const personType = document.getElementById('ext_personType').value;
-  const roleWord = (personType === 'مشرف') ? 'المشرف' : 'الفني';
+  const personType = document.getElementById('ext_personType').value; // فني / مشرف
   const copyId = (document.getElementById('ext_copyId').value || '').trim();
 
   if(!copyId){
@@ -1024,6 +1100,7 @@ function ext_generate(){
     return;
   }
 
+  // ===== 1) main =====
   if(mode === 'main'){
     const headerText = (personType === 'مشرف') ? 'المشرف المحترم' : 'الفني المحترم';
     const days = parseInt(document.getElementById('ext_days').value,10);
@@ -1033,7 +1110,10 @@ function ext_generate(){
     let startDate = new Date(tzDate.getFullYear(), tzDate.getMonth(), tzDate.getDate());
     let endDate = new Date(startDate); endDate.setDate(endDate.getDate() + days);
 
-    function fmtYMD(d){ let y=d.getFullYear(), m=String(d.getMonth()+1).padStart(2,'0'), day=String(d.getDate()).padStart(2,'0'); return `${y}/${m}/${day}`; }
+    function fmtYMD(d){
+      let y=d.getFullYear(), m=String(d.getMonth()+1).padStart(2,'0'), day=String(d.getDate()).padStart(2,'0');
+      return `${y}/${m}/${day}`;
+    }
 
     const result =
 `***\`  إجازة خارجية  \`***  
@@ -1061,11 +1141,11 @@ function ext_generate(){
     return;
   }
 
-  /* ✅ سجلات الموظفين - إجازة خارجية */
+  // ===== 2) record_leave =====
   if(mode === 'record_leave'){
     const days = parseInt(document.getElementById('ext_rec_days').value,10);
     const start = document.getElementById('ext_rec_start').value;
-    const link = (document.getElementById('ext_rec_link').value || '').trim();
+    const link  = (document.getElementById('ext_rec_link').value || '').trim();
 
     if(!days || days <= 0){ alert("⚠️ يرجى إدخال مدة الاجازة بشكل صحيح"); return; }
     if(!start){ alert("⚠️ يرجى إدخال تاريخ بدء الاجازة"); return; }
@@ -1079,11 +1159,11 @@ function ext_generate(){
     const endText = formatDateYMD(endStr);
 
     // ✅ فني: نفس القديم
-    if(personType !== 'مشرف'){
+    if(personType === 'فني'){
       const result =
 `***\`نموذج الاجازة الخارجية \`***
 
-***\`اسم ${roleWord}  :\`  ( <@${copyId}> ) ***
+***\`اسم الفني  :\`  ( <@${copyId}> ) ***
 
 ***\`مدة الاجازة : \` ( ${days} يوم ) ***
 
@@ -1100,7 +1180,7 @@ function ext_generate(){
       return;
     }
 
-    // ✅ مشرف: القالب الصحيح (بدء/انتهاء) — مو كسر/رجوع
+    // ✅ مشرف: قالب صحيح (بدء + انتهاء + رابط)
     const resultSupervisor =
 `***\`نموذج الاجازة الخارجية \`***
 
@@ -1121,25 +1201,19 @@ function ext_generate(){
     return;
   }
 
-/* ✅ سجلات الموظفين - كسر الاجازة الخارجية */
-if(mode === 'record_break'){
-  const breakDate = document.getElementById('ext_break_date').value;
-  const link = (document.getElementById('ext_break_link').value || '').trim();
+  // ===== 3) record_break =====
+  if(mode === 'record_break'){
+    const breakDate = document.getElementById('ext_break_date').value;
+    const link  = (document.getElementById('ext_break_link').value || '').trim();
 
-  if(!breakDate){
-    alert("⚠️ يرجى إدخال تاريخ كسر/رجوع من الاجازة");
-    return;
-  }
-  if(!link){
-    alert("⚠️ يرجى إدخال رابط الاجازة");
-    return;
-  }
+    if(!breakDate){ alert("⚠️ يرجى إدخال تاريخ كسر/رجوع من الاجازة"); return; }
+    if(!link){ alert("⚠️ يرجى إدخال رابط الاجازة"); return; }
 
-  const breakText = formatDateYMD(breakDate);
+    const breakText = formatDateYMD(breakDate);
 
-  /* ✅ فني = القالب الجديد */
-  if(personType === 'فني'){
-    const result =
+    // ✅ فني: القالب اللي طلبته أنت
+    if(personType === 'فني'){
+      const result =
 `***\`نموذج كسر / رجوع من الاجازة الخارجية \`***
 
 ***\`اسم الفني  :\`***  ***( <@${copyId}> ) ***
@@ -1150,14 +1224,13 @@ if(mode === 'record_break'){
 
 ***\`للعلم والاحاطة/\`***
 <@1059976190988910772> & <@792640279684710412> & <@1069596605080162397>`;
-    const out = document.getElementById('ext_output');
-    out.innerText = result;
-    out.style.display = 'block';
-    return;
-  }
+      const out = document.getElementById('ext_output');
+      out.innerText = result; out.style.display='block';
+      return;
+    }
 
-  /* ✅ مشرف = القالب القديم */
-  const resultSupervisor =
+    // ✅ مشرف: قالب المشرف
+    const resultSupervisor =
 `***\`نموذج كسر / رجوع من الاجازة الخارجية \`***
 
 ***\`اسم المشرف  :\` ( <@${copyId}> ) ***
@@ -1168,10 +1241,150 @@ if(mode === 'record_break'){
 
 ***\`للعلم والاحاطة/\`***
 <@1140931533285367852>&<@818887908265033728>`;
-  const out = document.getElementById('ext_output');
-  out.innerText = resultSupervisor;
+    const out = document.getElementById('ext_output');
+    out.innerText = resultSupervisor; out.style.display='block';
+    return;
+  }
+}
+
+/* ---------- ROLE REQUEST (طلب رول) ---------- */
+function role_generate(){
+  const copyId = (document.getElementById('role_copyId').value || '').trim();
+  const reason = (document.getElementById('role_reason').value || '').trim();
+  const checks = document.querySelectorAll('#role_requests input[type="checkbox"]:checked');
+
+  if(!copyId){ alert("⚠️ يرجى إدخال الكوبي ايدي"); return; }
+  if(checks.length === 0){ alert("⚠️ يرجى اختيار نوع الطلب واحد على الأقل"); return; }
+  if(!reason){ alert("⚠️ يرجى كتابة السبب"); return; }
+
+  const types = Array.from(checks).map(c=>c.value).join(" , ");
+
+  const result =
+`***السلام عليكم ورحمة الله وبركاته ,,***
+
+***\`القيادة الموقرة نطلب منكم للفني : \` ( <@${copyId}> ) ***
+
+***نوع الطلب : ( ${types} ) ***
+
+***\`وذلك بسبب :\` ( ${reason} ) ***
+
+*** للعلم مع التحية /***
+<@&1071933343123386429> 
+<@&1092120226478428200> 
+<@&1092120390324731994>***`;
+
+  const out = document.getElementById('role_output');
+  out.innerText = result;
   out.style.display = 'block';
-  return;
+}
+
+/* ================= Ticket Templates ================= */
+function ticket_toggleFields(){
+  const t = document.getElementById('ticket_type').value;
+  const promo = document.getElementById('ticket_promoFields');
+  if(promo) promo.style.display = (t === 'promo_form') ? 'block' : 'none';
+  ticket_toggleReason();
+}
+
+function ticket_toggleReason(){
+  const t = document.getElementById('ticket_type').value;
+  const elig = document.getElementById('ticket_eligibility');
+  const box = document.getElementById('ticket_reasonBox');
+  if(!box) return;
+  if(t !== 'promo_form'){ box.style.display = 'none'; return; }
+  box.style.display = (elig && elig.value === 'غير مستحق') ? 'block' : 'none';
+}
+
+function ticket_generate(){
+  const type = document.getElementById('ticket_type').value;
+  const out = document.getElementById('ticket_output');
+  if(!type){ alert("⚠️ اختر نموذج"); return; }
+
+  let result = "";
+
+  if(type === "accept_vac"){
+    result =
+`***  قبول الاجازة تحت هذه الشروط :***
+
+**تم قبول اجازتك نرجوا منك الانتظار لحين انزالها في [صادر الشؤون الادارية](https://discord.com/channels/1071933157097615480/1152470303507755008) . **
+
+\`** نرجوا منك الاتزام بجميع قوانين المقاطعة و قرائة الاتي :**\`
+
+***\`تنويهات هامة يجب قرائتها :\`***  
+
+**01/ تبدأ الإجازة الخاصة بك في وقتها المحدد، ويُمنع تغيير الوظيفة قبل المدة المحددة لبدء الإجازة.**  
+
+**02/ يجب العودة من الإجازة قبل انتهاء مدتها وتغيير الوظيفة إلى قطاع الميكانيك. من يخالف ذلك سيُعتبر تهرباً وظيفياً وستتم محاسبته من قِبل إدارة الكراج.** 
+
+**03/ في حال عندك عذر وقدمته بفتح تكت اجازة سيتم فقط تصفير اجازاتك مهما كان السبب وعدم اعطائك تهرب وظيفي**  
+
+**04/ في حال تم سجنك رقابيا سيتم تطبيق العقوبه عليك حسب [قوانين الاجازات](https://ptb.discord.com/channels/1071933157097615480/1071934713524133918/1416990256070135900) **  
+
+**كذلك في حال تعديت نص الاسبوع ( الثلاثاء ) او كان رصيدك اقل من نص اجماليك سيتم تصفيرك الاسبوع الحالي والقادم**
+
+**05/يمنع منعاً باتاً تغيير الاسم داخل المقاطعة حسب [قوانين الاجازات](https://ptb.discord.com/channels/1071933157097615480/1071934713524133918/1416990256070135900) **`;
+  }
+
+  if(type === "vac_form"){
+    result =
+`> نموذج الاجازات نرجوا منك تعبئته :
+> 
+*نرجو منك تعبئت هذا النموذج لطلب اجازة: *
+
+\`مستواك في الميكانيك\` : **مستوى ....**
+
+\`عدد الساعات المطلوبة \` : **0**
+
+\`رصيدك المتبقي في حال وجوده \`: **0**`;
+  }
+
+  if(type === "resign_form"){
+    result =
+`*حياك الله.*
+
+*- تم قبول استقالتك نتمنى منك اكمال هذا الاستبيان [اضغط هنا](https://forms.cloud.microsoft/r/MRgyvuyWgD).*
+*- في حال كنت مستوى متدرب أو مستوى واحد يتوجب امتلاكك 1 مليون للاستقالة.*
+*- في حال استقالتك سوف تحصل على منع توضيف مدته 14 يوم. *
+*- نرجوا منك التوجه الى روم الكراج في اقرب وقت لاستكمال اجرائات الاستقالة.*
+*[روم الكراج](https://discord.com/channels/1071933157097615480/1202408726925934692)*`;
+  }
+
+  if(type === "promo_form"){
+    const reports = (document.getElementById('ticket_reports').value || '').trim();
+    const hours = (document.getElementById('ticket_hours').value || '').trim();
+    const eligibility = document.getElementById('ticket_eligibility').value;
+    const reason = (document.getElementById('ticket_reason').value || '').trim();
+
+    const reportsVal = reports ? reports : "0";
+    const hoursVal = hours ? hours : "0";
+
+    let reasonLine = "لا يوجد";
+    let reasonsBullets = "";
+
+    if(eligibility === "غير مستحق"){
+      reasonLine = reason ? reason : "السبب غير مذكور";
+      reasonsBullets =
+`- عدد ساعات أقل من المطلوب .
+- عدد تقارير أقل من المطلوب .
+-  ليس مستوفي عدد الدورات المطلوبة .`;
+    }
+
+    result =
+`* استعلام متطلبات الترقية*
+
+\` التقارير :\` **${reportsVal}**
+
+\`عدد الساعات :\`**${hoursVal}**
+
+\`الدورات المتبقية للترقية :\`**لايوجد**
+
+\`استحقاق الترقية :\`**${eligibility}**
+الاسباب : ${reasonLine}
+${reasonsBullets ? ("\n" + reasonsBullets) : ""}`;
+  }
+
+  out.innerText = result;
+  out.style.display = 'block';
 }
 
 /* ===================== COPY HELPERS ===================== */
@@ -1209,9 +1422,12 @@ function copyToClipboard(text){
 
 function vac_copyResult(){ copyToClipboard(document.getElementById('vac_output')?.innerText || ""); }
 function res_copy(){ copyToClipboard(document.getElementById('res_output')?.innerText || ""); }
+function vio_copy(){ copyToClipboard(document.getElementById('vio_output')?.innerText || ""); }
 function abs_copy(){ copyToClipboard(document.getElementById('abs_output')?.innerText || ""); }
 function ext_copy(){ copyToClipboard(document.getElementById('ext_output')?.innerText || ""); }
 function sec_copy(){ copyToClipboard(document.getElementById('sec_output')?.innerText || ""); }
+function role_copy(){ copyToClipboard(document.getElementById('role_output')?.innerText || ""); }
+function ticket_copy(){ copyToClipboard(document.getElementById('ticket_output')?.innerText || ""); }
 
 /* ---------- عند التحميل ---------- */
 document.addEventListener('DOMContentLoaded', ()=>{
@@ -1220,6 +1436,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
   show('vacBox');
   ext_toggleMode();
   res_toggleLevel();
+  ticket_toggleFields();
 
   const recDaysInput = document.getElementById('ext_rec_days');
   const recStartInput = document.getElementById('ext_rec_start');
@@ -1233,5 +1450,3 @@ document.addEventListener('DOMContentLoaded', ()=>{
 
 </body>
 </html>
-
-
