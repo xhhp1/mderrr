@@ -4,8 +4,8 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>💼الشؤون الإدارية💼</title>
+
 <style>
-/* ===== Right menu (desktop) ===== */
 :root{
   --menuW: 240px;
 
@@ -15,22 +15,44 @@
   --panel-bg: rgba(0,0,0,0.85);
 }
 
+html,body{height:100%}
+*{box-sizing:border-box;}
+
 body{
-  /* IMPORTANT: reserve space so content never goes under the fixed menu */
+  margin:0;
+  font-family:Tahoma, Arial, sans-serif;
+  color:var(--gold);
+  text-align:center;
+
+  /* ✅ reserve space so content never goes under the fixed RIGHT menu */
   padding-right: calc(var(--menuW) + 30px);
+  padding-left: 20px;
+  padding-top: 20px;
+
+  background: #111;
 }
 
-/* القائمة يمين فوق */
+/* ✅ القائمة يمين دائماً */
 .menu{
   position: fixed;
   top: 16px;
-  right: 16px;
+  right: 16px;            /* ✅ always right */
+  left: auto;             /* ✅ prevent stretching */
   width: var(--menuW);
   display: flex;
-  flex-direction: column;
+  flex-direction: column; /* ✅ always vertical */
   gap: 10px;
   z-index: 10000;
   margin: 0;
+  max-height: calc(100vh - 32px);
+  overflow-y: auto;       /* ✅ scroll if many buttons */
+  padding-right: 2px;
+}
+
+.menu::-webkit-scrollbar{ width: 8px; }
+.menu::-webkit-scrollbar-thumb{
+  background: rgba(224,202,81,0.35);
+  border-radius: 10px;
 }
 
 .menu button{
@@ -53,48 +75,34 @@ body{
   transform: translateX(-3px);
 }
 
-/* ===== Mobile / small window / portrait ===== */
+/* ✅ IMPORTANT: even on small screens keep menu right + vertical */
 @media (max-width: 900px), (orientation: portrait){
   body{
-    padding-right: 20px;
-    padding-top: 110px;
+    padding-right: calc(var(--menuW) + 20px);
+    padding-left: 12px;
+    padding-top: 20px;
   }
-
-
   .menu{
-    position: fixed;
     top: 10px;
     right: 10px;
-    left: 10px;
-    width: auto;
-
-    flex-direction: row;
-    gap: 10px;
-
-    padding: 8px;
-    border-radius: 12px;
-    background: rgba(0,0,0,0.55);
-    backdrop-filter: blur(6px);
-
-    overflow-x: auto;      /* ✅ scroll horizontally if too many buttons */
-    overflow-y: hidden;
-    white-space: nowrap;
+    width: var(--menuW);
+    flex-direction: column;
+    overflow-y: auto;
+    overflow-x: hidden;
+    background: transparent;
+    backdrop-filter: none;
+    padding: 0;
+    border-radius: 0;
   }
-
-  .menu::-webkit-scrollbar{
-    height: 8px;
-  }
-
   .menu button{
-    width: auto;
-    min-width: 160px; /* so buttons stay readable */
-    text-align: center;
-    transform: none; /* avoid jump */
+    min-width: 0;
+    text-align: right;
+    transform: none;
   }
 }
 
-  /* ✅ أهم تعديل: اخفاء كل التابات افتراضياً */
-  .container{
+/* ✅ أهم تعديل: اخفاء كل التابات افتراضياً */
+.container{
   display:none;
   max-width:980px;
   margin: 12px auto;
@@ -102,76 +110,93 @@ body{
   border-radius:12px;
   padding:18px;
   text-align:right;
-  box-sizing:border-box;
-  margin-top: 20px; /* ✅ instead of 90px */
+  margin-top: 20px;
 }
-  
-  .container.active{ display:block; }
-  .container h2{ margin-top:0; color:var(--gold); }
 
-  label{ display:block; margin:10px 0 6px; font-weight:bold; text-align:right; }
-  input[type="text"], input[type="number"], input[type="date"], select, textarea{
-    width:100%; padding:10px; border-radius:8px; border:1px solid var(--gold);
-    background:var(--bg); color:var(--gold); font-size:15px; box-sizing:border-box;
-  }
-  textarea{ resize:vertical; }
+.container.active{ display:block; }
+.container h2{ margin-top:0; color:var(--gold); }
 
-  .time-group{ display:flex; gap:8px; }
-  .time-group input, .time-group select{ flex:1; }
+label{ display:block; margin:10px 0 6px; font-weight:bold; text-align:right; }
 
-  .manual-wrap{ display:flex; align-items:center; gap:8px; margin-top:8px; }
-  .manual-wrap input[type="checkbox"]{ width:auto; }
+input[type="text"], input[type="number"], input[type="date"], select, textarea{
+  width:100%;
+  padding:10px;
+  border-radius:8px;
+  border:1px solid var(--gold);
+  background:var(--bg);
+  color:var(--gold);
+  font-size:15px;
+}
 
-  .button-row{ display:flex; gap:12px; justify-content:center; margin-top:14px; flex-wrap:wrap; }
-  .btn{ padding:12px 22px; background:var(--gold); color:#111; border:none; border-radius:8px; font-weight:bold; cursor:pointer; }
-  .btn:hover{ background:#c6b142; }
+textarea{ resize:vertical; }
 
-  .output{
-    display:none; margin-top:14px; background:#333; padding:14px; border-radius:8px;
-    color:var(--gold); text-align:left; white-space:pre-wrap; direction:ltr;
-    max-width:940px; margin-left:auto; margin-right:auto; box-sizing:border-box;
-  }
+.time-group{ display:flex; gap:8px; }
+.time-group input, .time-group select{ flex:1; }
 
-  .custom-dropdown{ position:relative; user-select:none; }
-  .cd-selected{
-    display:flex; align-items:center; justify-content:space-between; gap:8px;
-    padding:10px; border-radius:8px; border:1px solid var(--gold);
-    background:var(--bg); color:var(--gold); cursor:pointer;
-  }
-  .cd-selected .placeholder{ opacity:0.8; }
-  .cd-panel{
-    position:absolute; z-index:9999; left:0; right:0; top:calc(100% + 6px);
-    background:var(--bg); border:1px solid rgba(224,202,81,0.15); border-radius:8px;
-    box-shadow:0 6px 20px rgba(0,0,0,0.5); max-height:300px; overflow:auto; padding:6px; display:none;
-  }
-  .cd-option{ padding:10px; border-radius:6px; color:var(--gold); cursor:pointer; text-align:right; }
-  .cd-option:hover{ background: rgba(224,202,81,0.06); }
-  .cd-option.selected{ background: rgba(224,202,81,0.14); }
+.manual-wrap{ display:flex; align-items:center; gap:8px; margin-top:8px; }
+.manual-wrap input[type="checkbox"]{ width:auto; }
 
-  .checkbox-group{
-    display:flex;
-    flex-direction:column;
-    gap:6px;
-    padding:8px 10px;
-    border-radius:8px;
-    border:1px solid rgba(224,202,81,0.5);
-    background:rgba(0,0,0,0.35);
-  }
-  .checkbox-group label{
-    margin:0;
-    font-weight:normal;
-    display:flex;
-    align-items:center;
-    gap:6px;
-  }
-  .checkbox-group input[type="checkbox"]{ width:auto; }
+.button-row{ display:flex; gap:12px; justify-content:center; margin-top:14px; flex-wrap:wrap; }
+.btn{ padding:12px 22px; background:var(--gold); color:#111; border:none; border-radius:8px; font-weight:bold; cursor:pointer; }
+.btn:hover{ background:#c6b142; }
 
-  @media (max-width:720px){
-    .menu button{ padding:14px 18px; font-size:18px; min-width:140px; }
-    .cd-panel{ max-height:260px; }
-  }
+.output{
+  display:none;
+  margin-top:14px;
+  background:#333;
+  padding:14px;
+  border-radius:8px;
+  color:var(--gold);
+  text-align:left;
+  white-space:pre-wrap;
+  direction:ltr;
+  max-width:940px;
+  margin-left:auto;
+  margin-right:auto;
+}
+
+/* custom dropdown */
+.custom-dropdown{ position:relative; user-select:none; }
+.cd-selected{
+  display:flex; align-items:center; justify-content:space-between; gap:8px;
+  padding:10px; border-radius:8px; border:1px solid var(--gold);
+  background:var(--bg); color:var(--gold); cursor:pointer;
+}
+.cd-selected .placeholder{ opacity:0.8; }
+.cd-panel{
+  position:absolute; z-index:9999; left:0; right:0; top:calc(100% + 6px);
+  background:var(--bg); border:1px solid rgba(224,202,81,0.15); border-radius:8px;
+  box-shadow:0 6px 20px rgba(0,0,0,0.5); max-height:300px; overflow:auto; padding:6px; display:none;
+}
+.cd-option{ padding:10px; border-radius:6px; color:var(--gold); cursor:pointer; text-align:right; }
+.cd-option:hover{ background: rgba(224,202,81,0.06); }
+.cd-option.selected{ background: rgba(224,202,81,0.14); }
+
+.checkbox-group{
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+  padding:8px 10px;
+  border-radius:8px;
+  border:1px solid rgba(224,202,81,0.5);
+  background:rgba(0,0,0,0.35);
+}
+.checkbox-group label{
+  margin:0;
+  font-weight:normal;
+  display:flex;
+  align-items:center;
+  gap:6px;
+}
+.checkbox-group input[type="checkbox"]{ width:auto; }
+
+@media (max-width:720px){
+  .menu button{ padding:14px 18px; font-size:18px; }
+  .cd-panel{ max-height:260px; }
+}
 </style>
 </head>
+
 <body>
 
 <h1>📋 الشؤون الإدارية📋</h1>
@@ -212,18 +237,19 @@ body{
     </div>
 
     <label>الكوبي ايدي</label>
-    <input type="number" id="vac_copyId" placeholder="أدخل الكوبي ايدي">
+    <input type="text" inputmode="numeric" id="vac_copyId" placeholder="أدخل الكوبي ايدي">
 
     <label>المــــدة (بالساعات)</label>
     <input type="number" id="vac_duration" placeholder="عدد الساعات">
 
     <label id="vac_balanceLabel">الرصيد المتبقي (بالساعات)</label>
-    <input type="number" id="vac_balance" placeholder="عدد الساعات">
+    <input type="text" inputmode="numeric" id="vac_balance" placeholder="عدد الساعات أو كوبي آيدي القيادة">
 
     <div class="manual-wrap">
       <input type="checkbox" id="vac_manualTime" onchange="vac_toggleManualTime()">
       <label for="vac_manualTime" style="margin:0;font-weight:normal">لإدخال الوقت بشكل يدوي</label>
     </div>
+
     <div id="vac_timeRow" class="time-group" style="display:none">
       <input type="number" id="vac_startHour" placeholder="الساعة (1-12)">
       <input type="number" id="vac_startMinute" placeholder="الدقيقة (0-59)">
@@ -247,7 +273,7 @@ body{
   <h2>🧾 نماذج الانتدابات 🧾</h2>
 
   <label>الكوبي ايدي</label>
-  <input type="number" id="sec_copyId" placeholder="أدخل الكوبي ايدي">
+  <input type="text" inputmode="numeric" id="sec_copyId" placeholder="أدخل الكوبي ايدي">
 
   <label>اسم المنتدب و كوده</label>
   <input type="text" id="sec_nameCode" placeholder="اكتب الاسم والكود">
@@ -288,7 +314,7 @@ body{
   </select>
 
   <label>الكوبي ايدي</label>
-  <input type="number" id="res_copyId" placeholder="أدخل الكوبي ايدي">
+  <input type="text" inputmode="numeric" id="res_copyId" placeholder="أدخل الكوبي ايدي">
 
   <div id="res_levelBox" style="display:none">
     <label id="res_levelLabel">رقم المستوى</label>
@@ -299,7 +325,7 @@ body{
   <input type="text" id="res_nameCode" placeholder="اكتب الاسم والكود كتابتاً">
 
   <label>كوبي ايدي (التوقيع)</label>
-  <input type="number" id="res_supervisorId" placeholder="أدخل كوبي ايدي (توقيع)">
+  <input type="text" inputmode="numeric" id="res_supervisorId" placeholder="أدخل كوبي ايدي (توقيع)">
 
   <div class="button-row">
     <button class="btn" onclick="res_generate()">إنشاء الرسالة</button>
@@ -319,7 +345,7 @@ body{
   </select>
 
   <label>منشن للمعتمد (الكوبي ايدي)</label>
-  <input type="number" id="acc_copyId" placeholder="أدخل كوبي ايدي المعتمد">
+  <input type="text" inputmode="numeric" id="acc_copyId" placeholder="أدخل كوبي ايدي المعتمد">
 
   <div id="acc_levelBox" style="display:none">
     <label id="acc_levelLabel">رقم المستوى (2 أو 3)</label>
@@ -330,10 +356,10 @@ body{
   <input type="text" id="acc_nameCode" placeholder="مثال:  حـمـد بـن عـسـكـر [CC|G-020]">
 
   <label> منشن لنفسك </label>
-  <input type="number" id="acc_selfId" placeholder="أدخل كوبي ايدي (منشن لنفسك)">
+  <input type="text" inputmode="numeric" id="acc_selfId" placeholder="أدخل كوبي ايدي (منشن لنفسك)">
 
   <label>مسؤول في اعطاء الاذن </label>
-  <input type="number" id="acc_permissionId" placeholder="اكتب كوبي ايدي مسؤول اعطاء الاذن">
+  <input type="text" inputmode="numeric" id="acc_permissionId" placeholder="اكتب كوبي ايدي مسؤول اعطاء الاذن">
 
   <div class="button-row">
     <button class="btn" onclick="acc_generate()">إنشاء</button>
@@ -348,7 +374,7 @@ body{
   <h2>📋المخالفات📋</h2>
 
   <label>الكوبي ايدي</label>
-  <input type="number" id="vio_copyId" placeholder="أدخل الكوبي ايدي">
+  <input type="text" inputmode="numeric" id="vio_copyId" placeholder="أدخل الكوبي ايدي">
 
   <label>رقم الإنذار الوظيفي</label>
   <select id="vio_warningLevel" onchange="vio_toggleByLevel()">
@@ -365,7 +391,7 @@ body{
 
   <div id="vio_supervisorRow">
     <label>كوبي ايدي المشرف</label>
-    <input type="number" id="vio_supervisorId" placeholder="أدخل كوبي ايدي المشرف">
+    <input type="text" inputmode="numeric" id="vio_supervisorId" placeholder="أدخل كوبي ايدي المشرف">
   </div>
 
   <label>المخالفات</label>
@@ -391,7 +417,7 @@ body{
   <h2>🧲نموذج إستدعاء للفني الذي لم يحضر🧲</h2>
 
   <label>الكوبي ايدي:</label>
-  <input type="number" id="abs_copyId" placeholder="أدخل الكوبي ايدي">
+  <input type="text" inputmode="numeric" id="abs_copyId" placeholder="أدخل الكوبي ايدي">
 
   <label>سبب الاستدعاء:</label>
   <div class="custom-dropdown" id="abs_dropdown">
@@ -444,7 +470,7 @@ body{
   </select>
 
   <label>الكوبي ايدي</label>
-  <input type="number" id="ext_copyId" placeholder="أدخل الكوبي ايدي">
+  <input type="text" inputmode="numeric" id="ext_copyId" placeholder="أدخل الكوبي ايدي">
 
   <div id="ext_mainFields">
     <label>مدة الاجازة (بالأيام)</label>
@@ -486,7 +512,7 @@ body{
   <h2>🧾 طلب رول 🧾</h2>
 
   <label>الكوبي ايدي</label>
-  <input type="number" id="role_copyId" placeholder="أدخل الكوبي ايدي">
+  <input type="text" inputmode="numeric" id="role_copyId" placeholder="أدخل الكوبي ايدي">
 
   <label>نوع الطلب</label>
   <div class="checkbox-group" id="role_requests">
@@ -1656,6 +1682,3 @@ document.addEventListener('DOMContentLoaded', ()=>{
 
 </body>
 </html>
-
-
-
