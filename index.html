@@ -22,42 +22,53 @@
     box-sizing:border-box;
   }
   h1{ margin:12px 0 18px; font-size:28px; }
-.menu{
-  position: fixed;
-  top: 16px;
-  right: 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  z-index: 10000;
-  margin: 0;
-}
 
-.menu button{
-  padding: 12px 16px;
-  font-size: 16px;
-  background: var(--gold);
-  color: #111;
-  border: none;
-  border-radius: 10px;
-  font-weight: bold;
-  cursor: pointer;
-  transition: transform .12s ease, background .12s ease;
-  min-width: 210px;
-  text-align: right;
-  box-shadow: 0 6px 18px rgba(0,0,0,0.35);
-}
+  /* ✅ القائمة يمين فوق */
+  .menu{
+    position: fixed;
+    top: 16px;
+    right: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    z-index: 10000;
+    margin: 0;
+  }
 
-.menu button:hover{
-  background:#c6b142;
-  transform: translateX(-3px);
-}
+  .menu button{
+    padding: 12px 16px;
+    font-size: 16px;
+    background: var(--gold);
+    color: #111;
+    border: none;
+    border-radius: 10px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: transform .12s ease, background .12s ease;
+    min-width: 210px;
+    text-align: right;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.35);
+  }
 
-/* عشان المحتوى ما يختفي تحت المينيو */
-.container{
-  margin-top: 90px;
-}
+  .menu button:hover{
+    background:#c6b142;
+    transform: translateX(-3px);
+  }
 
+  /* ✅ أهم تعديل: اخفاء كل التابات افتراضياً */
+  .container{
+    display:none;
+    max-width:980px;
+    margin: 12px auto;
+    background: var(--panel-bg);
+    border-radius:12px;
+    padding:18px;
+    text-align:right;
+    box-sizing:border-box;
+
+    /* عشان المحتوى ما يختفي تحت المينيو */
+    margin-top: 90px;
+  }
   .container.active{ display:block; }
   .container h2{ margin-top:0; color:var(--gold); }
 
@@ -267,14 +278,14 @@
   <label>نوع الاستقالة</label>
   <select id="acc_type" onchange="acc_toggleLevel()">
     <option value="trainee_1">استقالة بمستوى (متدرب & 1)</option>
-    <option value="level_2_6">مستوى 2 و اعلى</option>
+    <option value="level_2_3">مستوى 2 و 3</option>
   </select>
 
   <label>منشن للمعتمد (الكوبي ايدي)</label>
   <input type="number" id="acc_copyId" placeholder="أدخل كوبي ايدي المعتمد">
 
   <div id="acc_levelBox" style="display:none">
-    <label id="acc_levelLabel">رقم المستوى (2 و اعلى )</label>
+    <label id="acc_levelLabel">رقم المستوى (2 أو 3)</label>
     <input type="number" id="acc_levelNumber" placeholder="اكتب 2 أو 3 فقط">
   </div>
 
@@ -672,7 +683,7 @@ function vac_generateVacation(){
   const isLeadershipReward = (type === 'مكافأة قيادية');
   if(isLeadershipReward){
     if(!balanceRaw){ alert("⚠️ يرجى إدخال كوبي يوزر آيدي القيادة"); return; }
-    if(!(document.getElementById('vac_leadHeader').value)){ alert('⚠️ يرجى اختيار المخاطَب (المشرف المحترم أو الفني المحترم)'); return; }
+    if(!(document.getElementById('vac_leadHeader').value)){ alert('⚠️ يرجى اختيار المخاطَب'); return; }
   } else {
     const balance = parseInt(balanceRaw,10) || 0;
     if(balance <= 0){ alert("⚠️ يرجى إدخال الرصيد المتبقي (بالساعات) بشكل صحيح"); return; }
@@ -719,8 +730,6 @@ function vac_generateVacation(){
 
   let headerText = 'الفني المحترم';
   if(type === 'مشرف') headerText = 'المشرف المحترم';
-  if(type === 'مستوى متدرب') headerText = 'الفني المحترم';
-  if(type === 'مستوى 1') headerText = 'الفني المحترم';
   if(isLeadershipReward){
     headerText = document.getElementById('vac_leadHeader').value;
   }
@@ -1008,7 +1017,6 @@ function acc_generate(){
   if(!selfId){ alert("⚠️ أدخل كوبي ايدي (منشن لنفسك)"); return; }
   if(!permId){ alert("⚠️ أدخل كوبي ايدي مسؤول في اعطاء الاذن"); return; }
 
-  // 1) متدرب & 1
   if(type === 'trainee_1'){
     const result =
 `*** ▬▬▬ ﷽ ▬▬
@@ -1050,7 +1058,6 @@ ${nameCode}
     return;
   }
 
-  // 2) مستوى 2 و 3
   if(type === 'level_2_3'){
     if(!lvlRaw || isNaN(lvl) || (lvl !== 2 && lvl !== 3)){
       alert("⚠️ اكتب رقم مستوى صحيح: 2 أو 3 فقط"); return;
@@ -1594,7 +1601,7 @@ function acc_copy(){ copyToClipboard(document.getElementById('acc_output')?.inne
 document.addEventListener('DOMContentLoaded', ()=>{
   populateOptions('vio_panel');
   populateOptions('abs_panel');
-  show('vacBox');
+  show('vacBox');          // ✅ يفتح تاب واحد فقط
   ext_toggleMode();
   res_toggleLevel();
   ticket_toggleFields();
@@ -1612,5 +1619,3 @@ document.addEventListener('DOMContentLoaded', ()=>{
 
 </body>
 </html>
-
-
