@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<!doctype html>
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="utf-8" />
@@ -780,7 +781,23 @@ function vac_generateVacation(){
 
     if(startHour <= 0 || startHour > 12 || startMinute < 0 || startMinute > 59){
       alert("⚠️ أدخل ساعة بين 1-12 ودقيقة بين 0-59"); return;
-    }
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>📋 قسم الجرد + الترقيات</title>
+
+  <style>
+    :root{
+      --menuW: 250px;
+      --gold: #e0ca51;
+      --gold-dark: #cdb63f;
+      --bg: #111;
+      --panel: rgba(0,0,0,0.60);
+      --field: rgba(40,40,40,0.88);
+      --line: rgba(224,202,81,0.95);
+      --text: #e0ca51;
+      --muted: #c9b94e;
+      --radius: 14px;
+}
     if(period === "م" && startHour < 12) startHour += 12;
     if(period === "ص" && startHour === 12) startHour = 0;
 
@@ -867,11 +884,31 @@ function sec_generate(){
   const nameCode = (document.getElementById('sec_nameCode').value || '').trim();
   const sector = document.getElementById('sec_sector').value;
   const days = (document.getElementById('sec_days').value || '').trim();
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+
+    body{
+      margin:0;
+      font-family: Tahoma, Arial, sans-serif;
+      color:var(--text);
+      background:
+        linear-gradient(rgba(0,0,0,.76), rgba(0,0,0,.76)),
+        url("https://raw.githubusercontent.com/xhhp1/mechanics/main/images/mechan.png") center/cover fixed no-repeat;
+      overflow-x:hidden;
+    }
 
   if(!copyId || !nameCode || !sector || !days){
     alert("⚠️ يرجى تعبئة جميع حقول الانتدابات");
     return;
   }
+    body::before{
+      content:"";
+      position:fixed;
+      inset:0;
+      background:
+        radial-gradient(circle at center, rgba(255,255,255,0.02), transparent 45%);
+      pointer-events:none;
+    }
 
   const result =
 `*** ▬▬▬ ﷽ ▬▬
@@ -880,6 +917,19 @@ function sec_generate(){
  \`\`\`cs
 # إشارة إلى طلب الموظف الموضحة بياناته أدناه بشأن الانتداب خارج الكراج، نفيدكم بأنه تمت الموافقة على طلبه وفق التفاصيل التالية:
 \`\`\`
+    /* side menu */
+    .menu{
+      position:fixed;
+      top:0;
+      right:0;
+      width:var(--menuW);
+      height:100vh;
+      padding:24px 18px;
+      border-left:2px solid rgba(224,202,81,.8);
+      background:rgba(0,0,0,.50);
+      backdrop-filter: blur(2px);
+      z-index:20;
+    }
 
  الاسم: <@${copyId}>
  اسم وكود الموظف : ${nameCode}
@@ -927,7 +977,12 @@ function res_generate(){
   if(type === 'supervisor_4_6'){
     if(!levelRaw || isNaN(levelNum) || levelNum < 4 || levelNum > 6){
       alert("⚠️ أدخل رقم مستوى صحيح بين 4 و 6"); return;
-    }
+    .menu-title{
+      text-align:center;
+      font-size:22px;
+      font-weight:700;
+      margin:0 0 18px;
+}
     const result =
 `*** ▬▬▬ ﷽ ▬▬
 \`\`\`diff
@@ -939,21 +994,63 @@ function res_generate(){
  
 أولاً:  تنهى خدمات المشرف ادناه اعتبارا من تاريخه
 \`\`\`
+    .menu input,
+    .menu select,
+    .menu button{
+      width:100%;
+      margin:0 0 10px;
+    }
 
 <@${copyId}>
 ${nameCode}
+    /* main content */
+    .container{
+      margin-right:calc(var(--menuW) + 26px);
+      padding:24px 26px 34px;
+      min-height:100vh;
+    }
 
 **نشكر جهوده المبذوله وما قدمه للقطاع ونتمنى له التوفيق**
+    .page-title{
+      text-align:center;
+      font-size:30px;
+      font-weight:700;
+      margin:8px 0 26px;
+      letter-spacing:.3px;
+      text-shadow:0 0 8px rgba(224,202,81,.15);
+    }
 
 \`\`\`وذلك بسبب : استقالة برتبة مستوى (${levelNum}) بناءاً على طلبه  \`\`\`
+    .section-title{
+      text-align:center;
+      font-size:22px;
+      font-weight:700;
+      margin:0 0 10px;
+      color:var(--gold);
+    }
 
+    .panel{
+      background:transparent;
+      border:none;
+      border-radius:18px;
+      margin-bottom:18px;
+    }
 
 \`توقيع:\`
 <@${signerId}>
+    .row{
+      display:flex;
+      gap:36px;
+      align-items:flex-start;
+    }
 
 \`اعتماد مسؤول الاشراف :\`
 <@1182445629721563177> 
 <@&1092120226478428200> 
+    .col{
+      flex:1;
+      min-width:0;
+    }
 
 \`يرسل الاصل الى : \`
 <@&1149742928953086105> ***`;
@@ -961,11 +1058,28 @@ ${nameCode}
     out.innerText = result; out.style.display='block';
     return;
   }
+    label{
+      display:block;
+      margin-bottom:8px;
+      font-size:15px;
+      color:var(--muted);
+    }
 
   if(type === 'retire_7_8'){
     if(!levelRaw || isNaN(levelNum) || levelNum < 7 || levelNum > 8){
       alert("⚠️ أدخل رقم مستوى صحيح بين 7 و 8"); return;
-    }
+    textarea,
+    input,
+    select{
+      width:100%;
+      border:1.5px solid var(--line);
+      border-radius:12px;
+      background:var(--field);
+      color:var(--text);
+      outline:none;
+      font-family:Tahoma, Arial, sans-serif;
+      transition:.18s ease;
+}
     const result =
 `*** ▬▬▬ ﷽ ▬▬
 \`\`\`diff
@@ -977,21 +1091,67 @@ ${nameCode}
  
 أولاً: تنهى خدمات المشرف ادناه بناءاً على طلبه اعتبارا من تاريخه 
 \`\`\`
+    input,
+    select{
+      height:42px;
+      padding:0 14px;
+    }
 
 <@${copyId}>
 ${nameCode}
+    textarea{
+      resize:none;
+      min-height:190px;
+      padding:14px;
+      line-height:1.8;
+    }
 
 **نشكر جهوده المبذوله وما قدمه للقطاع ونتمنى له التوفيق**
+    textarea::placeholder,
+    input::placeholder{
+      color:#8f8f8f;
+    }
 
 \`\`\`وذلك احالة الى التقاعد برتبة مستوى (${levelNum}) بناءاً على طلبه \`\`\`
+    textarea:focus,
+    input:focus,
+    select:focus{
+      box-shadow:0 0 0 3px rgba(224,202,81,.10);
+      border-color:#f0d95f;
+    }
 
+    .actions{
+      display:flex;
+      justify-content:flex-end;
+      gap:10px;
+      margin-top:10px;
+      flex-wrap:wrap;
+    }
 
 \`توقيع:\`
 <@${signerId}>
+    .mid-actions{
+      display:flex;
+      justify-content:flex-end;
+      gap:10px;
+      margin-top:10px;
+      margin-bottom:34px;
+    }
 
 \`اعتماد مسؤول الاشراف:\`
 <@1182445629721563177> 
 <@&1092120226478428200> 
+    button{
+      border:none;
+      border-radius:12px;
+      padding:10px 18px;
+      background:var(--gold);
+      color:#111;
+      font-family:Tahoma, Arial, sans-serif;
+      font-weight:700;
+      cursor:pointer;
+      transition:.18s ease;
+    }
 
 \`يرسل الاصل الى : \`
 <@&1149742928953086105> ***`;
@@ -999,15 +1159,33 @@ ${nameCode}
     out.innerText = result; out.style.display='block';
     return;
   }
+    button:hover{
+      transform:translateY(-1px);
+      background:#e8d25b;
+      box-shadow:0 8px 16px rgba(0,0,0,.22);
+    }
 
   if(type === 'مستوى متدرب' || type === 'مستوى 1'){
     const reasonLine = (type === 'مستوى متدرب')
       ? "استقالة برتبة مستوى (متدرب)"
       : "استقالة برتبة مستوى (1)";
+    .menu button{
+      min-height:42px;
+      border-radius:0;
+      background:#d7c44b;
+      color:#111;
+      border:none;
+      box-shadow:0 10px 0 rgba(110,94,20,.45);
+      font-weight:700;
+    }
 
     const result =
 `*** ▬▬▬ ﷽ ▬▬
 \`\`\`diff
+    .menu button:hover{
+      transform:translateY(-1px);
+      background:#e1cf57;
+    }
 
 -الموضوع : قرار انهاء خدمات
 \`\`\`
@@ -1018,20 +1196,69 @@ ${nameCode}
 ثانياً: منع توظيف 14 يوم
 ثالثاً:غرامه مالية قدرها 1,000,000 تسلم الى خزينة الكراج
 \`\`\`
+    .menu select,
+    .menu input{
+      background:rgba(20,20,20,.85);
+      color:var(--gold);
+      border:1.5px solid var(--line);
+      border-radius:12px;
+    }
 
 <@${copyId}>
 ${nameCode}
+    .counter{
+      margin-top:8px;
+      text-align:center;
+      color:#d7c760;
+      font-size:15px;
+    }
 
 \`\`\`وذلك بسبب : ${reasonLine} \`\`\`
+    @media (max-width: 980px){
+      .menu{
+        position:relative;
+        width:100%;
+        height:auto;
+        border-left:none;
+        border-bottom:2px solid rgba(224,202,81,.8);
+      }
+
+      .container{
+        margin-right:0;
+        padding:18px;
+      }
+
+      .row{
+        flex-direction:column;
+        gap:18px;
+      }
+    }
+  </style>
+</head>
+<body>
 
 \`نوع السحب : \`  [فاتورة](رابط الفاتورة) 
+  <aside class="menu">
+    <h2 class="menu-title">أدوات ⚙️</h2>
 
 \`اعتماد:\` <@${signerId}>
+    <input id="startCode" type="number" placeholder="بداية الكود">
 
+    <button onclick="filterQualified()">🏆 المستحقين</button>
+    <button onclick="filterNotQualifiedOnly()">❌ غير المستحقين</button>
+    <button onclick="filterNotQualified()">⚡ توزيع ذكي</button>
 
 \`توقيع مدير الخزينة: \`
 <@680393068469682256>
 <@&1071933343123386429>
+    <select id="levelSelect">
+      <option value="trainee">متدرب ← مستوى 1</option>
+      <option value="1">مستوى 1 ← مستوى 2</option>
+      <option value="2">مستوى 2 ← مستوى 3</option>
+      <option value="3">مستوى 3 ← مستوى 4</option>
+      <option value="4">مستوى 4 ← مستوى 5</option>
+      <option value="5">مستوى 5</option>
+    </select>
 
 يرسل الاصل الى : 
 <@&1149742928953086105> ***`;
@@ -1039,11 +1266,68 @@ ${nameCode}
     out.innerText = result; out.style.display='block';
     return;
   }
+    <button onclick="reassignByLevel()">🎯 حسب المستوى</button>
+    <button onclick="reassignCodes()">🔄 إعادة توزيع</button>
 
   if(type === 'اعلى'){
     if(!levelRaw || isNaN(levelNum) || levelNum < 2){
       alert("⚠️ أدخل رقم مستوى صالح (2 فأعلى)"); return;
-    }
+    <select id="promotionType">
+      <option value="trainee-1">متدرب → 1</option>
+      <option value="1-2">1 → 2</option>
+      <option value="2-3">2 → 3</option>
+      <option value="3-4">3 → 4</option>
+      <option value="4-5">4 → 5</option>
+    </select>
+  </aside>
+
+  <main class="container">
+    <h1 class="page-title">📋 قسم الجرد + الترقيات 📋</h1>
+
+    <section class="panel">
+      <h2 class="section-title">📥 الإدخال</h2>
+      <textarea id="inputText" placeholder="حط النص هنا..."></textarea>
+
+      <div class="mid-actions">
+        <button onclick="resetFields()">مسح 🗑️</button>
+        <button onclick="analyzeText()">تحليل</button>
+      </div>
+    </section>
+
+    <section class="row">
+      <div class="col panel">
+        <h2 class="section-title">📋 النتيجة</h2>
+        <textarea id="cleanedText" readonly></textarea>
+        <div class="actions">
+          <button onclick="copyText()">نسخ</button>
+        </div>
+      </div>
+
+      <div class="col panel">
+        <h2 class="section-title">📜 نموذج الترقيات</h2>
+        <textarea id="promotionBox" readonly></textarea>
+        <div class="actions">
+          <button onclick="copyPromotion()">نسخ</button>
+          <button onclick="generatePromotionForm()">توليد</button>
+        </div>
+      </div>
+    </section>
+
+    <p class="counter" id="counter"></p>
+  </main>
+
+  <script>
+    function getPromotionLevels(){
+      const type = document.getElementById("promotionType").value;
+      switch(type){
+        case "trainee-1": return ["متدرب", "1"];
+        case "1-2": return ["1", "2"];
+        case "2-3": return ["2", "3"];
+        case "3-4": return ["3", "4"];
+        case "4-5": return ["4", "5"];
+        default: return ["متدرب", "1"];
+      }
+}
     const resultHigh =
 `*** ▬▬▬ ﷽ ▬▬
 \`\`\`diff
@@ -1118,23 +1402,42 @@ function acc_generate(){
 
 <@${accId}>
 ${nameCode}
+    function parseLines(){
+      const text = document.getElementById("inputText").value;
+      const seen = new Set();
 
 \`\`\`وذلك بسبب : استقالة برتبة مستوى (متدرب & 1) \`\`\`
+      return text.split("\n").map(line => {
+        if(!line.trim() || line.includes("منصب شاغر")) return null;
 
 \`نوع السحب : \` [فاتورة](رابط الدليل) 
+        const id = line.match(/<@[^>]+>/)?.[0];
+        if(!id || seen.has(id)) return null;
 
 \`اعتماد:\` <@${selfId}>
+        seen.add(id);
 
 \`اعتماد مدير قسم شؤون المعتمدين:\`
 <@1282062186579230792> 
 <@&1092120390324731994> 
+        const checks = (line.match(/✅/g) || []).length;
 
 \`توقيع مدير الخزينة: \`
 <@680393068469682256>
 <@&1071933343123386429>
+        return {
+          id,
+          checks,
+          qualified: checks >= 2
+        };
+      }).filter(Boolean);
+    }
 
 \`للمتابعة:\`
 ( <@${permId}> )
+    function generatePromotionForm(){
+      const data = parseLines().filter(d => d.qualified);
+      const levels = getPromotionLevels();
 
 يرسل الاصل الى : 
 <@&1149742928953086105> ***`;
@@ -1142,17 +1445,26 @@ ${nameCode}
     out.innerText = result; out.style.display='block';
     return;
   }
+      if(data.length === 0){
+        document.getElementById("promotionBox").value = "⚠️ لا يوجد مستحقين";
+        document.getElementById("counter").textContent = "";
+        return;
+      }
 
   if(type === 'level_2_9'){
     if(!lvlRaw || isNaN(lvl) || lvl < 2){
       alert("⚠️ اكتب رقم مستوى صحيح: 2 فأعلى"); return;
     }
+      const names = data.map(d => d.id).join("\n");
 
     const result =
 `*** ▬▬▬ ﷽ ▬▬
+      document.getElementById("promotionBox").value =
+`*** ▬▬▬ ﷽ ▬▬▬
 \`\`\`diff
 
 -الموضوع : قرار انهاء خدمات معتمد
+-الموضوع: ترقيات مستوى (${levels[0]})
 \`\`\`
 \`\`\`cs
 # بعد الاطلاع على نظام التوظيف والترقيات وانهاء الخدمة الصادر من ادارة الكراج قررنا مايلي 
@@ -1205,11 +1517,16 @@ function vio_generate(){
 # بعد الاطلاع على نظام المخالفات والعقوبات الصادر من ادارة الكراج قررنا مايلي 
  
 اولاً: انذار (شفهي) 
+أولا: ترقية الأسماء التالية من مستوى (${levels[0]}) إلى (${levels[1]})
+ثانياً: اعتماد الأكواد الجديدة
+ثالثاً: إلحاقهم بالدورات المستحقة
 \`\`\`
 
 \` الفني : \` <@${copyId}>
+${names}
 
 \`\`\`وذلك بسبب :  ${violation}\`\`\`
+* مع تمنياتنا لهم بالتوفيق والنجاح.`;
 
 \`اعتماد:\` <@${supervisorId}>`;
     const out = document.getElementById('vio_output');
@@ -1367,7 +1684,8 @@ function ext_generate(){
     function fmtYMD(d){
       let y=d.getFullYear(), m=String(d.getMonth()+1).padStart(2,'0'), day=String(d.getDate()).padStart(2,'0');
       return `${y}/${m}/${day}`;
-    }
+      document.getElementById("counter").textContent = `📋 عدد المستحقين: ${data.length}`;
+}
 
     const result =
 `***\`  إجازة خارجية  \`***  
@@ -1426,16 +1744,30 @@ function ext_generate(){
 ***\`نسخة للقرار :\` ( ${link} ) ***
 
 ***\`للعلم والاحاطة/\`***
-<@1069596605080162397> & <@1182445629721563177> & <@943672877272694824>`;
 <@1069596605080162397> & <@1329539822028849152>`;
       const out = document.getElementById('ext_output');
       out.innerText = result; out.style.display='block';
       return;
-@@ -1446,268 +1446,268 @@
+    function analyzeText(){
+      let num = 1;
+      document.getElementById("cleanedText").value =
+        parseLines().map(d => `${d.id} G-${num++}`).join("\n");
+}
+
+    const resultSupervisor =
+`***\`نموذج الاجازة الخارجية \`***
+
+***\`اسم المشرف  :\` ( <@${copyId}> ) ***
+
+***\`مدة الاجازة :\` ( ${days} يوم ) ***
+
+***\`تاريخ بدء الاجازة :\` ( ${startText} ) ***
+
+***\`تاريخ انتهاء الاجازة :\` ( ${endText} ) ***
+
 ***\`نسخة للقرار :\` ( ${link} ) ***
 
 ***\`للعلم والاحاطة/\`***
-<@818887908265033728>`;
 <@451806885419679765>`;
     const out = document.getElementById('ext_output');
     out.innerText = resultSupervisor; out.style.display='block';
@@ -1466,7 +1798,10 @@ function ext_generate(){
       const out = document.getElementById('ext_output');
       out.innerText = result; out.style.display='block';
       return;
-    }
+    function filterQualified(){
+      document.getElementById("cleanedText").value =
+        parseLines().filter(d => d.qualified).map(d => d.id).join("\n");
+}
 
     const resultSupervisor =
 `***\`نموذج كسر / رجوع من الاجازة الخارجية \`***
@@ -1586,18 +1921,53 @@ function ticket_generate(){
 *- نرجوا منك التوجه الى روم الكراج في اقرب وقت لاستكمال اجرائات الاستقالة.*
 *[روم الكراج](https://discord.com/channels/1071933157097615480/1202408726925934692)*`;
   }
+    function filterNotQualifiedOnly(){
+      document.getElementById("cleanedText").value =
+        parseLines().filter(d => !d.qualified).map(d => d.id).join("\n");
+    }
 
   if(type === "promo_form"){
     const reports = (document.getElementById('ticket_reports').value || '').trim();
     const hours = (document.getElementById('ticket_hours').value || '').trim();
     const eligibility = document.getElementById('ticket_eligibility').value;
     const reason = (document.getElementById('ticket_reason').value || '').trim();
+    function filterNotQualified(){
+      let start = parseInt(document.getElementById("startCode").value) || 500;
+      document.getElementById("cleanedText").value =
+        parseLines().filter(d => !d.qualified).map(d => `${d.id} G-${start++}`).join("\n");
+    }
 
     const reportsVal = reports ? reports : "0";
     const hoursVal = hours ? hours : "0";
+    function reassignCodes(){
+      document.getElementById("cleanedText").value =
+        parseLines().filter(d => d.qualified).map((d, i) => `${d.id} G-${400 + i}`).join("\n");
+    }
 
     let reasonLine = "لا يوجد";
     let reasonsBullets = "";
+    function reassignByLevel(){
+      const ranges = {
+        "5":[100,144],
+        "4":[145,184],
+        "3":[185,269],
+        "2":[270,399],
+        "1":[400,699],
+        "trainee":[700,999]
+      };
+
+      const level = document.getElementById("levelSelect").value;
+      let [start, end] = ranges[level];
+      const data = parseLines().filter(d => d.qualified);
+      const result = [];
+
+      for(const d of data){
+        if(start > end) break;
+        result.push(`${d.id} G-${start++}`);
+      }
+
+      document.getElementById("cleanedText").value = result.join("\n");
+    }
 
     if(eligibility === "غير مستحق"){
       reasonLine = reason ? reason : "السبب غير مذكور";
@@ -1605,7 +1975,9 @@ function ticket_generate(){
 `- عدد ساعات أقل من المطلوب .
 - عدد تقارير أقل من المطلوب .
 -  ليس مستوفي عدد الدورات المطلوبة .`;
-    }
+    function copyText(){
+      navigator.clipboard.writeText(document.getElementById("cleanedText").value);
+}
 
     result =
 `* استعلام متطلبات الترقية*
@@ -1654,7 +2026,9 @@ function copyToClipboard(text){
       alert("❌ لم يتم النسخ تلقائيًا. انسخ يدويًا.");
     } finally {
       document.body.removeChild(ta);
-    }
+    function copyPromotion(){
+      navigator.clipboard.writeText(document.getElementById("promotionBox").value);
+}
   }
 }
 
@@ -1688,5 +2062,22 @@ document.addEventListener('DOMContentLoaded', ()=>{
 });
 </script>
 
+    function resetFields(){
+      document.getElementById("inputText").value = "";
+      document.getElementById("cleanedText").value = "";
+      document.getElementById("promotionBox").value = "";
+      document.getElementById("counter").textContent = "";
+    }
+  </script>
 </body>
 </html>
+
+
+
+
+
+
+
+
+
+
